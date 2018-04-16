@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="./main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" defer></script>
+    <script src="../tabsMain.js" defer></script>
+    <script src="../tabsMain-dotsNav.js" defer></script>
+    <script src="../tabsMain-slideButtons.js" defer></script>
+    <script src="../tabsMain-animate.js" defer></script>
+    <script src="./main-pes.js" defer></script>
+    <script src="../../event-throttle-pes.js" defer></script>
+</head>
+<body>
+<main>
+    <section class="js-first-case">
+        <h2>Simple Horizontal + buttons</h2>
+        <label>
+            <span>Items per slide, here is good 1, 2 (1 is default):</span>
+            <input type="number" name="itemsPS" id="itemsPerSlide" value='1'>
+        </label>
+        <div class="wrapper">
+            <span class="btn btn-left"><</span>
+            <div class="simple-container">
+                <ul class="tabs_1 ">
+                    <li class="child-item"><a href="#0">0</a></li>
+                    <li class="child-item"><a href="#1">1</a></li>
+                    <li class="child-item"><a href="#2">2</a></li>
+                    <li class="child-item"><a href="#3">3</a></li>
+                    <li class="child-item"><a href="#4">4</a></li>
+                    <li class="child-item"><a href="#5">5</a></li>
+                </ul>
+            </div>
+            <span class="btn btn-right">></span>
+        </div>
+    </section>
+    <section class="js-oversized-case">
+        <h2>Horizontal + buttons + enough space (responsive to check)</h2>
+        <div class="wrapper wrapper-oversize">
+            <span class="btn btn-left"><</span>
+            <div class="simple-container">
+                <ul class="tabs_1 tabs-oversized">
+                    <li class="child-item"><a href="#0">0</a></li>
+                    <li class="child-item"><a href="#1">1</a></li>
+                    <li class="child-item"><a href="#2">2</a></li>
+                </ul>
+            </div>
+            <span class="btn btn-right">></span>
+        </div>
+    </section>
+    <section class="js-second-case">
+        <h2>Simple Horizontal + dots <a
+                href="https://schneider.atlassian.net/wiki/spaces/PESV3/pages/158058583/Recently+Viewed+Items+block"
+                target="_blank">Watch AC</a></h2>
+        <div class="simple-container simple-dots">
+            <!-- <span class="btn btn-left"><</span> -->
+            <ul class="tabs_1 tabs-dots ">
+                <li class="child-item"><a href="#0">0</a></li>
+                <li class="child-item"><a href="#1">1</a></li>
+                <li class="child-item"><a href="#2">2</a></li>
+                <li class="child-item"><a href="#3">3</a></li>
+                <li class="child-item"><a href="#4">4</a></li>
+                <li class="child-item"><a href="#5">5</a></li>
+                <li class="child-item"><a href="#6">6</a></li>
+                <li class="child-item"><a href="#7">7</a></li>
+                <li class="child-item"><a href="#8">8</a></li>
+                <li class="child-item"><a href="#9">9</a></li>
+            </ul>
+            <!-- <span class="btn btn-right">></span> -->
+        </div>
+        <div class="dots-container">
+            <div class="js-dots-container"></div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,154 @@
+.dot-nav.dot-nav--selected::after {
+    background: rgb(35, 138, 25);
+}
+
+.dot-nav.dot-nav--smallest::after {
+    width: 7px;
+    height: 7px;
+    transition: all 0.1s;
+}
+
+.dot-nav.dot-nav--small::after {
+
+    width: 10px;
+    height: 10px;
+    transition: all 0.1s;
+}
+
+.dot-nav {
+    width: 20px;
+    height: 20px;
+    position: relative;
+    display: inline-block;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.dot-nav:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    display: block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #333;
+
+    transition: all 0.1s;
+}
+
+.tabs_1.tabs-oversized {
+    width: 100%;
+}
+
+.tabs_1.tabs-dots {
+    width: 100%;
+}
+
+.simple-dots {
+    max-width: 200px;
+}
+
+.invisible {
+    visibility: hidden;
+}
+
+.hidden {
+    display: none;
+}
+
+.tabs_1 {
+    width: 400px;
+    height: 200px;
+    border: 1px solid #666;
+    display: flex;
+}
+
+.tabs_1 .child-item {
+    min-width: 200px;
+    width: 200px;
+    background-color: rgb(116, 116, 116);
+    border: 1px solid #333;
+}
+
+.child-item a {
+    display: block;
+    height: 100%;
+}
+
+.simple-container {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.btn {
+    width: 60px;
+    background-color: #fff;
+    height: 60px;
+    border: 1px solid #000;
+    cursor: pointer;
+}
+
+.btn-right {
+    text-align: right;
+}
+
+.wrapper.wrapper-oversize {
+    width: 100%;
+}
+
+.wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 600px;
+    border: 1px solid sandybrown;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body, html {
+    font-size: 14px;
+    color: #333;
+}
+
+main {
+    margin: 0 auto;
+    display: flex;
+    flex-flow: column;
+    width: 100vw;
+    max-width: 960px;
+    background-color: #fafafa;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+ul {
+    margin: 0;
+    padding: 0;
+}
+
+li {
+    display: block;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+section {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    width: 100%;
+    border: 1px solid #666;
+    padding: 20px;
+}
