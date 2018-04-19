@@ -16,13 +16,17 @@
 $.fn.tabsMain = function (options) {
   'use strict';
   const $that = this;
+  const COMPENSATION_ELEMENT = 'tabs--compensation-item';
+  let $compensationItems;
   let vectorTransform = {x: 0, y: 0};
   let vectorPrev = {x: 0, y: 0};
   let touchIdentifier = 0;
   let pathAbs = 0;
   let moveAmmount = {x: 0, y: 0};
   let eventTarget;
+  let childs;
   let settings = {
+    childSelector: '> li',
     axisArr: ['x'],
     tapPrecision: 5,
     allowedOffsets: {xMin: 0, xMax: 0, yMin: 0, yMax: 0}, //not necessary to set with resize
@@ -49,6 +53,7 @@ $.fn.tabsMain = function (options) {
 
   function initValues(options) {
     settings = {...settings, ...options};
+    childs = $that.find(`${settings.childSelector}`);
   }
 
   // end INIT
@@ -60,7 +65,7 @@ $.fn.tabsMain = function (options) {
   function subscribeHandlers() {
     $that.on('mousedown', handleDown);
     $that.on('touchstart', handleTouchStart);
-    settings.isHandleResize && $(window).on('optimizedResize', handleResize);
+    settings.isHandleResize && $(window).on('resize', handleResize);
   }
 
   function unSubscribeHandlers() {
@@ -69,7 +74,7 @@ $.fn.tabsMain = function (options) {
 
     $that.off('mouseup mouseleave touchend', handleStop);
     $that.off('mousemove touchmove', handleMove);
-    $(window).off('optimizedResize', handleResize);
+    $(window).off('resize', handleResize);
   }
 
   function handleResize() {
@@ -86,8 +91,51 @@ $.fn.tabsMain = function (options) {
     if (!settings.useOverflowOffset) {
       return;
     }
+    considerItemsPerSlide();
     settings.allowedOffsets.xMin = -($that.parent()[0].scrollWidth - $that.parent().width());
     settings.allowedOffsets.yMin = $that.parent()[0].scrollHeight;
+  }
+
+  function fitItemsToScreen() {
+    let currentWidth = $that.parent().width();
+    let summ = childs[0].offsetWidth;
+
+    for (let index = 1; index < childs.length; index++) {
+      const element = childs[index];
+      let nextSumm = summ + element.offsetWidth;
+
+      if (nextSumm > currentWidth) {
+        settings.itemsPerSlide = index;
+        $that.parent().css({'width':summ});
+        break;  
+      }
+
+      summ = nextSumm;
+    }
+  }
+
+  function considerItemsPerSlide() {
+    $compensationItems && $compensationItems.remove();
+
+    if (!settings.isIPSFitsScreen) { return; }
+    
+    fitItemsToScreen();
+
+    let divide = childs.length / settings.itemsPerSlide;
+    let width = childs[childs.length - 1].offsetWidth;
+    if ( getDecimal(divide) > 0) {
+      let extraItems = childs.length - (Math.trunc(divide) + 1);
+      
+      for (let index = 0; index < extraItems; index++) {
+        let $element = $(`<li class=${COMPENSATION_ELEMENT}>`);
+        $element.css({
+          'min-width': width,
+          'height': '1px'
+        });
+        $that.append($element);
+      }
+    }
+    invokeCallback(settings.update, 'dotsUpdate');
   }
 
   // start EVENTS
@@ -135,11 +183,13 @@ $.fn.tabsMain = function (options) {
   }
 
   // end touch
-  function invokeCallback(callbackArr) {
+  function invokeCallback(callbackArr, type = 'default') {
     let info = {
       vectorTransform,
       moveAmmount,
-      pathAbs
+      pathAbs,
+      childs,
+      type
     };
 
     callbackArr.forEach(callBack => {
@@ -298,6 +348,14 @@ $.fn.tabsMain = function (options) {
     }
   }
 
+  function getDecimal(num) {
+    var str = "" + num;
+    var zeroPos = str.indexOf(".");
+    if (zeroPos == -1) return 0;
+    str = str.slice(zeroPos);
+    return +str;
+  }
+
   return {
     enable,
     disable,
@@ -313,7 +371,6 @@ $.fn.tabsMain = function (options) {
     getOffsets: () => settings.allowedOffsets,
   };
 };
-
 
 // method to get x y from matrix
 //

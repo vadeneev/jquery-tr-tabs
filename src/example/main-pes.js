@@ -5,7 +5,7 @@ $(
     oversizedTabs();
     firstTabs();
     secondTabs();
-
+    dotsAdaptedCase();
   }
 );
 
@@ -125,4 +125,39 @@ function oversizedTabs() {
 
   //
 
+}
+
+function dotsAdaptedCase() {
+  let infoSlides = $('.js-slides-info');
+  let $tabs = $('.js-dots-adapt-case .tabs_1');
+  let $childItems = $tabs.find('> li');
+  let my = $tabs.tabsMain({
+    isIPSFitsScreen: true,
+  });
+
+  let moveTabs = $tabs.tabsMainAnimate({
+    tabs: my,
+    childItems: $childItems
+  });
+
+  let dots = $('.js-adapt-dots').tabsMainDots({
+    triggerPoint: {x: 100, y: 0},
+    tabsMoverCtrl: moveTabs,
+    $tabsItems: $childItems,
+  });
+
+  my.subscribe({
+    event: 'stop',
+    callback: moveTabs.continueSliding
+  });
+
+  my.subscribe({
+    event: 'update',
+    callback: dots.trackTabs
+  });
+
+  infoSlides.attr('items', my.getSettings().itemsPerSlide);
+  $(window).on('resize', () => {
+    infoSlides.attr('items', my.getSettings().itemsPerSlide);
+  });
 }

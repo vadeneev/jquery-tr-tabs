@@ -1,0 +1,11 @@
+.dots-adapted {
+    width: 100%;
+}
+
+.dots-adapted-resize {
+    width: 100%;
+}
+
+.slides-info::after {
+    content: attr(items);
+}

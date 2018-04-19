@@ -63,8 +63,7 @@
 
 .tabs_1 {
     width: 400px;
-    height: 200px;
-    border: 1px solid #666;
+    height: 200px;    
     display: flex;
 }
 
