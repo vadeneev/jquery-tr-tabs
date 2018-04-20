@@ -9,13 +9,16 @@ $.fn.tabsMainDots = function (options) {
   const CORE_CLASS_SMALL = 'dot-nav--small';
   const CORE_CLASS_SMALLEST = 'dot-nav--smallest';
 
+
+
   let config = {
     triggerPoint: {x: 0, y: 0},
     accuracy: 25,
     tabsMoverCtrl: null,
-    $tabsItems: []
+    tabsCore: null,
   };
 
+  let $tabsItems = [];
   let isListen = true;
   let axis = 'x';
   let dotsArray = [];
@@ -27,13 +30,16 @@ $.fn.tabsMainDots = function (options) {
   function init() {
     config = {...config, ...options};
 
-    if (config.$tabsItems.length < 2) {
+    $tabsItems = config.tabsCore.getChilds();
+    
+    if ($tabsItems.length < 2) {
       return;
     }
 
-    config.$tabsItems.each((index, item) => {
+    $tabsItems.each((index, item) => {
       getGeneratedDot($(item), $that, index);
     });
+
     $that.on('click', handleDotCLick);
     dotsArray = $that.find(`.${CORE_CLASS}`);
     updateDots();
@@ -96,7 +102,7 @@ $.fn.tabsMainDots = function (options) {
 
     isListen = false;
     curSelectedIndex = Number.parseInt($target.data('index')) || 0;
-    $element = $(config.$tabsItems[curSelectedIndex]);
+    $element = $($tabsItems[curSelectedIndex]);
     config.tabsMoverCtrl
     && config.tabsMoverCtrl.centerToElementX($element)
       .always(() => {
@@ -112,7 +118,7 @@ $.fn.tabsMainDots = function (options) {
     }
     let summWidth = 0;
 
-    config.$tabsItems.each((index, element) => {
+    $tabsItems.each((index, element) => {
       let curWidth = element.offsetWidth;
 
       if (Math.abs(summWidth + curWidth / 2 - Math.abs($event.vectorTransform[axis]) - config.triggerPoint[axis]) < config.accuracy) {

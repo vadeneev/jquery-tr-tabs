@@ -80,6 +80,7 @@ $.fn.tabsMain = function (options) {
   function handleResize() {
     calculateOffset();
     setTransformBounds();
+    considerItemsPerSlide();
     invokeCallback(settings.update);
   }
 
@@ -96,8 +97,8 @@ $.fn.tabsMain = function (options) {
     settings.allowedOffsets.yMin = $that.parent()[0].scrollHeight;
   }
 
-  function fitItemsToScreen() {
-    let currentWidth = $that.parent().width();
+  function fitItemsToExternal() {
+    let currentWidth = $that.parent().parent().width();
     let summ = childs[0].offsetWidth;
 
     for (let index = 1; index < childs.length; index++) {
@@ -106,7 +107,7 @@ $.fn.tabsMain = function (options) {
 
       if (nextSumm > currentWidth) {
         settings.itemsPerSlide = index;
-        $that.parent().css({'width':summ});
+        $that.parent().css({'width':summ, 'max-width': '100%'});
         break;  
       }
 
@@ -119,7 +120,7 @@ $.fn.tabsMain = function (options) {
 
     if (!settings.isIPSFitsScreen) { return; }
     
-    fitItemsToScreen();
+    fitItemsToExternal();
 
     let divide = childs.length / settings.itemsPerSlide;
     let width = childs[childs.length - 1].offsetWidth;
@@ -365,6 +366,7 @@ $.fn.tabsMain = function (options) {
     subscribe,
     unSubscribe,
     setItemsPerSlide,
+    getChilds: () => childs,
     getSettings: () => settings,
     getElement: () => $that,
     getTransform: () => vectorTransform,

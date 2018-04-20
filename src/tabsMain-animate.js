@@ -1,10 +1,10 @@
 $.fn.tabsMainAnimate = function (config) {
   let settings = {
-    tabs: null,
-    childItems: [],
+    tabsCore: null,    
     tolerance: 40
   };
 
+  let childItems = [];
   let axis = 'x';
   let accuracy = 1;
   let speed = 35;
@@ -19,8 +19,8 @@ $.fn.tabsMainAnimate = function (config) {
   init();
 
   function updateBasis() {
-    boundaryBox = settings.tabs.getOffsets();
-    itemsPerSlide = settings.tabs.getSettings().itemsPerSlide;
+    boundaryBox = settings.tabsCore.getOffsets();
+    itemsPerSlide = settings.tabsCore.getSettings().itemsPerSlide;
     basis = boundaryBox[`${axis}Min`];
     basisMax = convertToBasis(boundaryBox[`${axis}Max`]);
   }
@@ -43,7 +43,8 @@ $.fn.tabsMainAnimate = function (config) {
 
   function init() {
     settings = {...settings, ...config};
-    axis = settings.tabs.getSettings().axisArr[0];
+    axis = settings.tabsCore.getSettings().axisArr[0];    
+    childItems = settings.tabsCore.getChilds();
   }
 
   /**
@@ -52,15 +53,15 @@ $.fn.tabsMainAnimate = function (config) {
    */
   function slideToMin() {
     updateBasis();
-    let curTransfrom = convertToBasis(settings.tabs.getTransform()[axis]);
+    let curTransfrom = convertToBasis(settings.tabsCore.getTransform()[axis]);
     let summMeasure = curTransfrom;
     let prevMeasure = 0;
 
-    if (curTransfrom >= convertToBasis(boundaryBox[`${axis}Max`]) || !settings.childItems.length) {
+    if (curTransfrom >= convertToBasis(boundaryBox[`${axis}Max`]) || !childItems.length) {
       return false;
     }
 
-    settings.childItems.each((index, element) => {
+    childItems.each((index, element) => {
       let $element = $(element);
       let localMeasure = getMeasure($element);
 
@@ -91,11 +92,11 @@ $.fn.tabsMainAnimate = function (config) {
    */
   function slideToMax() {
     updateBasis();
-    let curTransfrom = convertToBasis(settings.tabs.getTransform()[axis]);
+    let curTransfrom = convertToBasis(settings.tabsCore.getTransform()[axis]);
     let summMeasure = curTransfrom;
-    let rightBorder = getMeasure(settings.tabs.getElement().parent()) + basisMax;
+    let rightBorder = getMeasure(settings.tabsCore.getElement().parent()) + basisMax;
 
-    settings.childItems.each((index, element) => {
+    childItems.each((index, element) => {
       let $element = $(element);
       let localMeasure = getMeasure($element);
 
@@ -140,7 +141,7 @@ $.fn.tabsMainAnimate = function (config) {
       }
     }
 
-    lookupArr = settings.childItems.slice(startIndex, endIndex);
+    lookupArr = childItems.slice(startIndex, endIndex);
 
     lookupArr.each((index, item) => {
       addDelta += getMeasure($(item));
@@ -155,8 +156,8 @@ $.fn.tabsMainAnimate = function (config) {
    * @public
    */
   function centerToElementX($element, callBack) {
-    let curTransfrom = settings.tabs.getTransform();
-    let wrapperWidth = settings.tabs.getElement().parent().outerWidth();
+    let curTransfrom = settings.tabsCore.getTransform();
+    let wrapperWidth = settings.tabsCore.getElement().parent().outerWidth();
     let leftOffset = getLeftBound($element);
     let width = $element.outerWidth();
     let sign = 1;
@@ -177,7 +178,7 @@ $.fn.tabsMainAnimate = function (config) {
   function getLeftBound($element) {
     let leftOffset = 0;
 
-    settings.childItems.each((index, element) => {
+    childItems.each((index, element) => {
       if (element.isSameNode($element.get(0))) {
         return false;
       }
@@ -196,7 +197,7 @@ $.fn.tabsMainAnimate = function (config) {
     let fullLength = 0;
     rejectAll();
     deferred = $.Deferred();
-    prevTransform = {...settings.tabs.getTransform()};
+    prevTransform = {...settings.tabsCore.getTransform()};
     point = {...prevTransform, ...point};
     fullLength = Math.abs(prevTransform[axis] - point[axis]);
     animationId && cancelAnimationFrame(animationId);
@@ -205,20 +206,20 @@ $.fn.tabsMainAnimate = function (config) {
   }
 
   function slideToPoint(point, fullLength, directionSign, promisDelegate, madeLength = 0,) {
-    let curTransform = settings.tabs.getTransform();
+    let curTransform = settings.tabsCore.getTransform();
     let moveAbs = Math.abs(curTransform[axis] - point[axis]);
 
     curTransform[axis] += directionSign * speed;
     madeLength += speed;
 
     if (madeLength > fullLength || moveAbs < accuracy) {
-      settings.tabs.setTransform({...curTransform, ...point});
+      settings.tabsCore.setTransform({...curTransform, ...point});
       promisDelegate.resolve();
       return false;
     }
 
-    settings.tabs.setTransform({...curTransform});
-    curTransform = settings.tabs.getTransform();
+    settings.tabsCore.setTransform({...curTransform});
+    curTransform = settings.tabsCore.getTransform();
 
     if (prevTransform[axis] === curTransform[axis]) {
       animationId = null;

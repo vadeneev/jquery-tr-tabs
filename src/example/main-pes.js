@@ -12,17 +12,18 @@ $(
 function secondTabs() {
   let $tabs = $('.js-second-case .tabs_1');
   let $childItems = $tabs.find('> li');
-  let my = $tabs.tabsMain();
+  let my = $tabs.tabsMain({
+    childSelector: '> li'
+  });
 
   let moveTabs = $tabs.tabsMainAnimate({
-    tabs: my,
-    childItems: $childItems
+    tabsCore: my,        
   });
 
   let dots = $('.js-dots-container').tabsMainDots({
     triggerPoint: {x: 100, y: 0},
     tabsMoverCtrl: moveTabs,
-    $tabsItems: $childItems,
+    tabsCore: my,
   });
 
   my.subscribe({
@@ -40,7 +41,9 @@ function secondTabs() {
 function firstTabs() {
   let $tabs = $('.js-first-case .tabs_1');
   let $childItems = $tabs.find('> li');
-  let my = $tabs.tabsMain();
+  let my = $tabs.tabsMain({
+    childSelector: '> li'
+  });
 
   // for left-right buttons
   let btn1 = $('.js-first-case .btn-left');
@@ -70,8 +73,7 @@ function firstTabs() {
 
   // create 'animation of move'
   let moveTabs = $tabs.tabsMainAnimate({
-    tabs: my,
-    childItems: $childItems
+    tabsCore: my,    
   });
   btn1.on('click', moveTabs.slideToLeft);
   btn2.on('click', moveTabs.slideToRight);
@@ -87,7 +89,9 @@ function firstTabs() {
 function oversizedTabs() {
   let $tabs = $('.js-oversized-case .tabs_1');
   let $childItems = $tabs.find('> li');
-  let my = $tabs.tabsMain();
+  let my = $tabs.tabsMain({
+    childSelector: '> li'
+  });
 
   // for left-right buttons
   let btn1 = $('.js-oversized-case .btn-left');
@@ -117,8 +121,7 @@ function oversizedTabs() {
 
   // create 'animation of move'
   let moveTabs = $tabs.tabsMainAnimate({
-    tabs: my,
-    childItems: $childItems
+    tabsCore: my,    
   });
   btn1.on('click', moveTabs.slideToLeft);
   btn2.on('click', moveTabs.slideToRight);
@@ -132,18 +135,18 @@ function dotsAdaptedCase() {
   let $tabs = $('.js-dots-adapt-case .tabs_1');
   let $childItems = $tabs.find('> li');
   let my = $tabs.tabsMain({
-    isIPSFitsScreen: true,
+    isIPSFitsScreen: true,    
+    childSelector: '> li'    
   });
 
   let moveTabs = $tabs.tabsMainAnimate({
-    tabs: my,
-    childItems: $childItems
+    tabsCore: my,    
   });
 
   let dots = $('.js-adapt-dots').tabsMainDots({
     triggerPoint: {x: 100, y: 0},
     tabsMoverCtrl: moveTabs,
-    $tabsItems: $childItems,
+    tabsCore: my
   });
 
   my.subscribe({
