@@ -9,8 +9,6 @@ $.fn.tabsMainDots = function (options) {
   const CORE_CLASS_SMALL = 'dot-nav--small';
   const CORE_CLASS_SMALLEST = 'dot-nav--smallest';
 
-
-
   let config = {
     triggerPoint: {x: 0, y: 0},
     accuracy: 25,

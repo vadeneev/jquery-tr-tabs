@@ -25,6 +25,7 @@ $.fn.tabsMain = function (options) {
   let moveAmmount = {x: 0, y: 0};
   let eventTarget;
   let childs;
+  let previousContainerSize;
   let settings = {
     childSelector: '> li',
     axisArr: ['x'],
@@ -78,9 +79,9 @@ $.fn.tabsMain = function (options) {
   }
 
   function handleResize() {
-    calculateOffset();
-    setTransformBounds();
     considerItemsPerSlide();
+    calculateOffset();
+    setTransformBounds();    
     invokeCallback(settings.update);
   }
 
@@ -99,33 +100,43 @@ $.fn.tabsMain = function (options) {
 
   function fitItemsToExternal() {
     let currentWidth = $that.parent().parent().width();
+    previousContainerSize = currentWidth;
+
     let summ = childs[0].offsetWidth;
 
     for (let index = 1; index < childs.length; index++) {
       const element = childs[index];
       let nextSumm = summ + element.offsetWidth;
 
-      if (nextSumm > currentWidth) {
-        settings.itemsPerSlide = index;
-        $that.parent().css({'width':summ, 'max-width': '100%'});
-        break;  
+      if (nextSumm > currentWidth) {        
+        //todo: add animation for width change
+        //use transition + transitionend event
+        $that.parent().css({
+          'width': summ ,
+          'max-width': '100%'
+        });
+        return index;
       }
 
       summ = nextSumm;
     }
   }
 
-  function considerItemsPerSlide() {
-    $compensationItems && $compensationItems.remove();
-
+  function considerItemsPerSlide() {    
     if (!settings.isIPSFitsScreen) { return; }
+    if ($that.parent().parent().width() === previousContainerSize) { return; }    
+
+    let nextIPSvalue = fitItemsToExternal();
+    if (nextIPSvalue === settings.itemsPerSlide) { return; }
     
-    fitItemsToExternal();
+    $that.find(`.${COMPENSATION_ELEMENT}`).remove();
+    settings.itemsPerSlide = nextIPSvalue;
 
     let divide = childs.length / settings.itemsPerSlide;
     let width = childs[childs.length - 1].offsetWidth;
-    if ( getDecimal(divide) > 0) {
-      let extraItems = childs.length - (Math.trunc(divide) + 1);
+
+    if ( getDecimal(divide) > 0) {      
+      let extraItems = (Math.ceil(divide) * settings.itemsPerSlide) - childs.length;
       
       for (let index = 0; index < extraItems; index++) {
         let $element = $(`<li class=${COMPENSATION_ELEMENT}>`);
