@@ -1,5 +1,4 @@
 //$.fn.reverse = [].reverse;
-
 $(
   function () {
     oversizedTabs();
@@ -138,10 +137,11 @@ function dotsAdaptedCase() {
     isIPSFitsScreen: true,    
     childSelector: '> li'    
   });
-
+    
   let moveTabs = $tabs.tabsMainAnimate({
-    tabsCore: my,    
-  });
+    tabsCore: my,
+  });  
+  window.tabs = moveTabs;
 
   let dots = $('.js-adapt-dots').tabsMainDots({
     triggerPoint: {x: 100, y: 0},

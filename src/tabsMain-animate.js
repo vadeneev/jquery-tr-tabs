@@ -34,11 +34,20 @@ $.fn.tabsMainAnimate = function (config) {
   }
 
 
-  function getMeasure($element) {
-    if (axis === 'x') {
-      return $element.outerWidth();
+  function getMeasure(element) {
+    if (element instanceof jQuery) {
+      if (axis === 'x') {
+        return element.outerWidth();
+      }
+      return element.outerHeight();
     }
-    return $element.outerHeight();
+
+    if (element instanceof Element) {
+      if (axis === 'x') {
+        return element.offsetWidth;
+      }
+      return element.offsetHeight;
+    }
   }
 
   function init() {
@@ -169,6 +178,28 @@ $.fn.tabsMainAnimate = function (config) {
     return startSlideToPoint({x: pointX, y: 0}, sign);
   }
 
+  function moveToSlide(slideNumber) {
+    updateBasis();
+    slideNumber = slideNumber || 1;
+    
+    if (itemsPerSlide === 1) {
+      moveToElement(childItems[slideNumber]);
+      return;
+    }
+
+    let lastIndex = itemsPerSlide * slideNumber;
+    let firstIndex = lastIndex - itemsPerSlide;    
+    let newPoint = { [axis]: boundaryBox[`${axis}Max`] - getLeftBound(childItems[firstIndex]) };
+
+    return startSlideToPoint(newPoint);
+  }
+
+  function moveToElement(element) {
+    let newPoint = { [axis]: boundaryBox[`${axis}Max`] - getLeftBound(element) };
+    
+    return startSlideToPoint(newPoint);
+  }
+  
   /**
    * @description calculates left bound of element respective to its parent
    * @param {jquery object}
@@ -177,12 +208,20 @@ $.fn.tabsMainAnimate = function (config) {
    */
   function getLeftBound($element) {
     let leftOffset = 0;
+    let curElement;
+    
+    if ($element instanceof jQuery) {
+      curElement = $element.get(0);
+    } 
+    else if ($element instanceof Element) {
+      curElement = $element;
+    }
 
     childItems.each((index, element) => {
-      if (element.isSameNode($element.get(0))) {
+      if (element.isSameNode(curElement)) {
         return false;
       }
-      leftOffset += $element.outerWidth();
+      leftOffset += getMeasure(element);
     });
     return leftOffset;
   }
@@ -233,6 +272,8 @@ $.fn.tabsMainAnimate = function (config) {
     slideToPoint,
     centerToElementX,
     continueSliding,
+    moveToSlide,
+    moveToElement,
   };
 
 };
