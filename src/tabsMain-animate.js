@@ -78,7 +78,7 @@ $.fn.tabsMainAnimate = function (config) {
 
         let newPoint = {[axis]: summMeasure};
 
-        startSlideToPoint(newPoint, 1);
+        startSlideToPoint(newPoint);
         return false;
       }
       summMeasure = nextSumm;
@@ -112,7 +112,7 @@ $.fn.tabsMainAnimate = function (config) {
 
         let newPoint = {[axis]: convertFromBasis(curTransfrom - delta)};
 
-        startSlideToPoint(newPoint, -1);
+        startSlideToPoint(newPoint);
         return false;
       }
     });
@@ -193,42 +193,26 @@ $.fn.tabsMainAnimate = function (config) {
     }
   }
 
-  function startSlideToPoint(point, directionSign) {
-    let fullLength = 0;
+  function startSlideToPoint(point) {
     rejectAll();
     deferred = $.Deferred();
     prevTransform = {...settings.tabsCore.getTransform()};
     point = {...prevTransform, ...point};
-    fullLength = Math.abs(prevTransform[axis] - point[axis]);
-    animationId && cancelAnimationFrame(animationId);
-    slideToPoint(point, fullLength, directionSign, deferred);
+    slideToPoint(point, deferred);
     return deferred;
   }
 
-  function slideToPoint(point, fullLength, directionSign, promisDelegate, madeLength = 0,) {
-    let curTransform = settings.tabsCore.getTransform();
-    let moveAbs = Math.abs(curTransform[axis] - point[axis]);
+  function slideToPoint(point, promisDelegate) {
+    let curTransform = settings.tabsCore.getTransform();    
+    let $that = settings.tabsCore.getElement();
 
-    curTransform[axis] += directionSign * speed;
-    madeLength += speed;
-
-    if (madeLength > fullLength || moveAbs < accuracy) {
-      settings.tabsCore.setTransform({...curTransform, ...point});
+    $that.css({ 'transition': 'transform 0.2s ease-in-out' });
+    $that.on('transitionend', () => {
       promisDelegate.resolve();
-      return false;
-    }
-
-    settings.tabsCore.setTransform({...curTransform});
-    curTransform = settings.tabsCore.getTransform();
-
-    if (prevTransform[axis] === curTransform[axis]) {
-      animationId = null;
-      promisDelegate.resolve();
-      return false;
-    }
-
-    prevTransform = {...curTransform};
-    animationId = requestAnimationFrame(() => slideToPoint(point, fullLength, directionSign, promisDelegate, madeLength));
+      $that.css({ 'transition': '' });
+      $that.off('transitionend');
+    });
+    settings.tabsCore.setTransform({...curTransform, ...point});
   }
 
   function continueSliding(event) {
