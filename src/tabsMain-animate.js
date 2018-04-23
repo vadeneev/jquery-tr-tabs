@@ -33,7 +33,6 @@ $.fn.tabsMainAnimate = function (config) {
     return value + basis;
   }
 
-
   function getMeasure(element) {
     if (element instanceof jQuery) {
       if (axis === 'x') {

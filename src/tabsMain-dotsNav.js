@@ -10,40 +10,61 @@ $.fn.tabsMainDots = function (options) {
   const CORE_CLASS_SMALLEST = 'dot-nav--smallest';
 
   let config = {
-    triggerPoint: {x: 0, y: 0},
+    triggerPoint: {x: '50%', y: '50%'},
     accuracy: 25,
     tabsMoverCtrl: null,
     tabsCore: null,
   };
-
-  let $tabsItems = [];
-  let isListen = true;
+  //todo: add trigger point percentage calculator
+  let triggerPoint =  {x: 0, y: 0};
   let axis = 'x';
+  let $tabsItems = [];
+  let isListen = true;  
   let dotsArray = [];
   let curSelectedIndex = 0;
   let subscribers = [];
+  let itemsPerSlide = 1;
+  let slideCount;
 
   init();
 
   function init() {
     config = {...config, ...options};
-
-    $tabsItems = config.tabsCore.getChilds();
-    
-    if ($tabsItems.length < 2) {
-      return;
-    }
-
-    $tabsItems.each((index, item) => {
-      getGeneratedDot($(item), $that, index);
-    });
-
     $that.on('click', handleDotCLick);
-    dotsArray = $that.find(`.${CORE_CLASS}`);
+    reManageDots();
     updateDots();
+    init = $.noop;
   }
 
-  function getGeneratedDot($toElement, $appendTo, index) {
+  function updateTriggerPoint() {
+    if (triggerPoint[axis].indexOf('%') === -1) { return; }
+
+  }
+
+  function reManageDots() {
+    $tabsItems = config.tabsCore.getChilds();
+    itemsPerSlide = config.tabsCore.getSettings().itemsPerSlide;
+    let nextSlideCount = Math.ceil($tabsItems.length / itemsPerSlide); // or create allChildrenList = real + compensation    
+    updateTriggerPoint();
+
+    if (slideCount === 1) { 
+      $that.empty();      
+      return; 
+    }
+
+    if (nextSlideCount === slideCount) { return; }
+
+    $that.empty();
+    slideCount = nextSlideCount;
+
+    for (let index = 0; index < slideCount; index++) {      
+      getGeneratedDot($that, index);
+    }
+
+    dotsArray = $that.find(`.${CORE_CLASS}`);
+  }
+
+  function getGeneratedDot($appendTo, index) {
     let $dot = $(`<div class="${CORE_CLASS}" data-index=${index}/>`);
     !index && $dot.addClass(CORE_CLASS_SELECTED);
 
@@ -53,6 +74,8 @@ $.fn.tabsMainDots = function (options) {
 
   function updateDots() {
     if (dotsArray.length < 4) {
+      dotsArray.removeClass(CORE_CLASS_SELECTED);
+      dotsArray[curSelectedIndex].classList.add(CORE_CLASS_SELECTED);
       return;
     }
 
@@ -100,9 +123,8 @@ $.fn.tabsMainDots = function (options) {
 
     isListen = false;
     curSelectedIndex = Number.parseInt($target.data('index')) || 0;
-    $element = $($tabsItems[curSelectedIndex]);
     config.tabsMoverCtrl
-    && config.tabsMoverCtrl.centerToElementX($element)
+    && config.tabsMoverCtrl.moveToSlide(curSelectedIndex + 1)
       .always(() => {
         isListen = true;
       });
@@ -110,23 +132,25 @@ $.fn.tabsMainDots = function (options) {
   }
 
   function trackTabs($event) {
-    //todo: check more effective algorhytm
     if (!isListen) {
       return;
     }
     let summWidth = 0;
 
-    $tabsItems.each((index, element) => {
-      let curWidth = element.offsetWidth;
+    for (let index = 0; index < slideCount; index++) {      
+      let startItem = itemsPerSlide * index;
+      
+      let elem = $($tabsItems[startItem]);
+      
+      let visiblePosition = $event.vectorTransform[axis] + ( elem.offset().left - elem.parent().offset().left ); //todo: use abstract
 
-      if (Math.abs(summWidth + curWidth / 2 - Math.abs($event.vectorTransform[axis]) - config.triggerPoint[axis]) < config.accuracy) {
+      if ( visiblePosition < config.triggerPoint[axis]) {
         curSelectedIndex = index;
-        updateDots();
-        invokeCallback();
-        return false;
       }
-      summWidth += curWidth;
-    });
+    }
+    
+    updateDots();
+    invokeCallback();
   }
 
   function enable() {
@@ -154,12 +178,13 @@ $.fn.tabsMainDots = function (options) {
     subscribers.remove(callback);
   }
 
-  return {
+  return {    
     trackTabs,
     updateDots,
     disable,
     enable,
     subscribe,
     unSubscribe,
+    reManageDots,
   };
 };

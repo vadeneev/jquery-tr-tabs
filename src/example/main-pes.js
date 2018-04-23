@@ -159,6 +159,11 @@ function dotsAdaptedCase() {
     callback: dots.trackTabs
   });
 
+  my.subscribe({
+    event: 'update',
+    callback: dots.reManageDots
+  });
+
   infoSlides.attr('items', my.getSettings().itemsPerSlide);
   $(window).on('resize', () => {
     infoSlides.attr('items', my.getSettings().itemsPerSlide);
