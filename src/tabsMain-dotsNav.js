@@ -15,8 +15,8 @@ $.fn.tabsMainDots = function (options) {
     tabsMoverCtrl: null,
     tabsCore: null,
   };
-  //todo: add trigger point percentage calculator
-  let triggerPoint =  {x: 0, y: 0};
+ 
+  let triggerPoint = {x: '50%', y: '50%'};
   let axis = 'x';
   let $tabsItems = [];
   let isListen = true;  
@@ -31,19 +31,30 @@ $.fn.tabsMainDots = function (options) {
   function init() {
     config = {...config, ...options};
     $that.on('click', handleDotCLick);
+    axis = config.tabsCore.getSettings().axis;
     reManageDots();
     updateDots();
     init = $.noop;
   }
 
-  function updateTriggerPoint() {
-    if (triggerPoint[axis].indexOf('%') === -1) { return; }
+  function updateTriggerPoint() {    
+    if (config.triggerPoint[axis].toString().indexOf('%') === -1) { 
+      triggerPoint[axis] = config.triggerPoint[axis];
+      return; 
+    }
 
+    let parentWidthPercent = config.tabsCore.getElement().outerWidth() / 100;
+    let percent = parseInt(config.triggerPoint[axis]);
+
+    triggerPoint[axis] = percent * parentWidthPercent;
   }
 
   function reManageDots() {
     $tabsItems = config.tabsCore.getChilds();
     itemsPerSlide = config.tabsCore.getSettings().itemsPerSlide;
+    
+    //TODO: move slideCount to core tabs, use with prevSlideCount
+
     let nextSlideCount = Math.ceil($tabsItems.length / itemsPerSlide); // or create allChildrenList = real + compensation    
     updateTriggerPoint();
 
@@ -137,14 +148,14 @@ $.fn.tabsMainDots = function (options) {
     }
     let summWidth = 0;
 
-    for (let index = 0; index < slideCount; index++) {      
+    for (let index = 0; index < slideCount; index++) {
       let startItem = itemsPerSlide * index;
       
       let elem = $($tabsItems[startItem]);
       
       let visiblePosition = $event.vectorTransform[axis] + ( elem.offset().left - elem.parent().offset().left ); //todo: use abstract
 
-      if ( visiblePosition < config.triggerPoint[axis]) {
+      if ( visiblePosition < triggerPoint[axis]) {
         curSelectedIndex = index;
       }
     }

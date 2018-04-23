@@ -51,10 +51,11 @@ $.fn.tabsMainAnimate = function (config) {
 
   function init() {
     settings = {...settings, ...config};
-    axis = settings.tabsCore.getSettings().axisArr[0];    
+    axis = settings.tabsCore.getSettings().axis;    
     childItems = settings.tabsCore.getChilds();
   }
 
+  // TODO: replace elements to slides
   /**
    * @description slides to left to next elements start
    * @public

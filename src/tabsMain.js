@@ -3,7 +3,7 @@
  * for applied element. By default it uses scrollable width/height - width/height as move anchors.
  * use setting to configure it for your needs. Feel free to extend.
  * Caution! It uses translate3d relative coordinates.
- axisArr: ['x'], - axis constraint
+ axis: 'x' - axis constraint
  tapPrecision: 5, - precision px for triggering click in case if drag ammount was lower
  allowedOffsets: { xMin: 0, xMax: 0, yMin: 0, yMax: 0} - offsets of available move
  isHandleResize: true, - adds onresize recalculating for offsets
@@ -28,7 +28,7 @@ $.fn.tabsMain = function (options) {
   let previousContainerSize;
   let settings = {
     childSelector: '> li',
-    axisArr: ['x'],
+    axis: 'x',
     tapPrecision: 5,
     allowedOffsets: {xMin: 0, xMax: 0, yMin: 0, yMax: 0}, //not necessary to set with resize
     isHandleResize: true,
@@ -251,12 +251,10 @@ $.fn.tabsMain = function (options) {
    */
   function proceedMoveHandler(vectorCur) {
     moveAmmount = {x: 0, y: 0};
-
-    settings.axisArr.forEach(element => {
-      moveAmmount[element] = vectorCur[element] - vectorPrev[element];
-      vectorTransform[element] += moveAmmount[element];
-      pathAbs += Math.abs(moveAmmount[element]);
-    });
+    
+    moveAmmount[settings.axis] = vectorCur[settings.axis] - vectorPrev[settings.axis];
+    vectorTransform[settings.axis] += moveAmmount[settings.axis];
+    pathAbs += Math.abs(moveAmmount[settings.axis]);    
 
     setVectorPrev(vectorCur);
     setTransformBounds();
@@ -270,16 +268,16 @@ $.fn.tabsMain = function (options) {
    */
   function setTransformBounds() {
     let isInScope = true;
-    settings.axisArr.forEach(element => {
-      if (vectorTransform[element] < settings.allowedOffsets[`${element}Min`]) {
-        vectorTransform[element] = settings.allowedOffsets[`${element}Min`];
+    
+      if (vectorTransform[settings.axis] < settings.allowedOffsets[`${settings.axis}Min`]) {
+        vectorTransform[settings.axis] = settings.allowedOffsets[`${settings.axis}Min`];
         isInScope = false;
       }
-      if (vectorTransform[element] > settings.allowedOffsets[`${element}Max`]) {
-        vectorTransform[element] = settings.allowedOffsets[`${element}Max`];
+      if (vectorTransform[settings.axis] > settings.allowedOffsets[`${settings.axis}Max`]) {
+        vectorTransform[settings.axis] = settings.allowedOffsets[`${settings.axis}Max`];
         isInScope = false;
       }
-    });
+    
     setXYtoMatrix();
     return isInScope;
   }
@@ -312,15 +310,8 @@ $.fn.tabsMain = function (options) {
     unSubscribeHandlers();
   }
 
-  function changeAxis(...axis) {
-
-    axis = axis.filter((value) => {
-      typeof value === 'string'
-      && value.length === 1
-      && value.match(/x|y/);
-    });
-
-    settings.axisArr = [...axis];
+  function changeAxis(axis) {
+    settings.axis = axis;
   }
 
   /**

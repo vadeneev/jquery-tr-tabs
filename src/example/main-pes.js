@@ -144,7 +144,7 @@ function dotsAdaptedCase() {
   window.tabs = moveTabs;
 
   let dots = $('.js-adapt-dots').tabsMainDots({
-    triggerPoint: {x: 100, y: 0},
+    triggerPoint: {x: '50%', y: 0},
     tabsMoverCtrl: moveTabs,
     tabsCore: my
   });
