@@ -4,7 +4,7 @@ $.fn.tabsMainAnimate = function (config) {
     tolerance: 40
   };
 
-  let childItems = [];
+  let $tabsItems = [];
   let axis = 'x';
   let accuracy = 1;
   let speed = 35;
@@ -52,79 +52,48 @@ $.fn.tabsMainAnimate = function (config) {
   function init() {
     settings = {...settings, ...config};
     axis = settings.tabsCore.getSettings().axis;    
-    childItems = settings.tabsCore.getChilds();
+    $tabsItems = settings.tabsCore.getChilds();
   }
 
-  // TODO: replace elements to slides
   /**
    * @description slides to left to next elements start
    * @public
    */
   function slideToMin() {
-    updateBasis();
-    let curTransfrom = convertToBasis(settings.tabsCore.getTransform()[axis]);
-    let summMeasure = curTransfrom;
-    let prevMeasure = 0;
+    let lastIndex = 0;
+    let slideCount = settings.tabsCore.getSettings().slideCount;
 
-    if (curTransfrom >= convertToBasis(boundaryBox[`${axis}Max`]) || !childItems.length) {
-      return false;
+    for (let index = 0; index < slideCount; index++) {
+      let startItem = itemsPerSlide * index;      
+      let elem = $($tabsItems[startItem]);      
+      let visiblePosition = settings.tabsCore.getTransform()[axis] + ( elem.offset().left - elem.parent().offset().left ); //todo: use abstract
+
+      if ( visiblePosition >= 0) { break; }
+      lastIndex = index;      
     }
 
-    childItems.each((index, element) => {
-      let $element = $(element);
-      let localMeasure = getMeasure($element);
-
-      let nextSumm = summMeasure + localMeasure;
-      if (nextSumm >= basisMax) {
-        let delta = basisMax - summMeasure;
-
-        if (delta < settings.tolerance) {
-          summMeasure -= prevMeasure;
-        }
-
-        summMeasure = curTransfrom - summMeasure;
-        summMeasure += considerItemsInSlide(index, 'min', localMeasure);
-
-        let newPoint = {[axis]: summMeasure};
-
-        startSlideToPoint(newPoint);
-        return false;
-      }
-      summMeasure = nextSumm;
-      prevMeasure = localMeasure;
-    });
+    moveToSlide(lastIndex);
   }
-
+  
   /**
    * @description slides to right to next elements end
    * @public
    */
   function slideToMax() {
-    updateBasis();
-    let curTransfrom = convertToBasis(settings.tabsCore.getTransform()[axis]);
-    let summMeasure = curTransfrom;
-    let rightBorder = getMeasure(settings.tabsCore.getElement().parent()) + basisMax;
+    let lastIndex = 0;
+    let slideCount = settings.tabsCore.getSettings().slideCount;
+    let width = settings.tabsCore.getElement().parent().width();
 
-    childItems.each((index, element) => {
-      let $element = $(element);
-      let localMeasure = getMeasure($element);
+    for (let index = 0; index < slideCount; index++) {
+      let startItem = itemsPerSlide * index;
+      let elem = $($tabsItems[startItem]);      
+      let visiblePosition = settings.tabsCore.getTransform()[axis] + ( elem.offset().left - elem.parent().offset().left ); //todo: use abstract
 
-      summMeasure += localMeasure;
-      if (summMeasure > rightBorder) {
-        let delta = summMeasure - rightBorder;
+      if ( visiblePosition > width) { break; }
+      lastIndex = index;      
+    }
 
-        if (Math.abs(delta) < settings.tolerance) {
-          return true;
-        }
-
-        delta += considerItemsInSlide(index, 'max', localMeasure);
-
-        let newPoint = {[axis]: convertFromBasis(curTransfrom - delta)};
-
-        startSlideToPoint(newPoint);
-        return false;
-      }
-    });
+    moveToSlide(lastIndex);
   }
 
   function considerItemsInSlide(newItemIndex, directionStr, localMeasure) {
@@ -150,7 +119,7 @@ $.fn.tabsMainAnimate = function (config) {
       }
     }
 
-    lookupArr = childItems.slice(startIndex, endIndex);
+    lookupArr = $tabsItems.slice(startIndex, endIndex);
 
     lookupArr.each((index, item) => {
       addDelta += getMeasure($(item));
@@ -180,16 +149,14 @@ $.fn.tabsMainAnimate = function (config) {
 
   function moveToSlide(slideNumber) {
     updateBasis();
-    slideNumber = slideNumber || 1;
     
     if (itemsPerSlide === 1) {
-      moveToElement(childItems[slideNumber]);
+      moveToElement($tabsItems[slideNumber]);
       return;
     }
-
-    let lastIndex = itemsPerSlide * slideNumber;
-    let firstIndex = lastIndex - itemsPerSlide;    
-    let newPoint = { [axis]: boundaryBox[`${axis}Max`] - getLeftBound(childItems[firstIndex]) };
+    //TODO: check for redundant 
+    let firstIndex = itemsPerSlide * slideNumber;     
+    let newPoint = { [axis]: boundaryBox[`${axis}Max`] - getLeftBound($tabsItems[firstIndex]) };
 
     return startSlideToPoint(newPoint);
   }
@@ -217,7 +184,7 @@ $.fn.tabsMainAnimate = function (config) {
       curElement = $element;
     }
 
-    childItems.each((index, element) => {
+    $tabsItems.each((index, element) => {
       if (element.isSameNode(curElement)) {
         return false;
       }

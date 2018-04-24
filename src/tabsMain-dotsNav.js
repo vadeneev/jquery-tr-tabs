@@ -31,7 +31,7 @@ $.fn.tabsMainDots = function (options) {
   function init() {
     config = {...config, ...options};
     $that.on('click', handleDotCLick);
-    axis = config.tabsCore.getSettings().axis;
+    axis = config.tabsCore.getSettings().axis;    
     reManageDots();
     updateDots();
     init = $.noop;
@@ -52,18 +52,17 @@ $.fn.tabsMainDots = function (options) {
   function reManageDots() {
     $tabsItems = config.tabsCore.getChilds();
     itemsPerSlide = config.tabsCore.getSettings().itemsPerSlide;
+    let nextSlideCount = config.tabsCore.getSettings().slideCount;
     
-    //TODO: move slideCount to core tabs, use with prevSlideCount
-
-    let nextSlideCount = Math.ceil($tabsItems.length / itemsPerSlide); // or create allChildrenList = real + compensation    
     updateTriggerPoint();
 
-    if (slideCount === 1) { 
+    if (nextSlideCount === 1) {
+      slideCount = nextSlideCount;
       $that.empty();      
       return; 
     }
 
-    if (nextSlideCount === slideCount) { return; }
+    if (slideCount === nextSlideCount) { return; }
 
     $that.empty();
     slideCount = nextSlideCount;
@@ -84,6 +83,10 @@ $.fn.tabsMainDots = function (options) {
   }
 
   function updateDots() {
+    if (!dotsArray || !dotsArray.length) {
+      return;
+    }
+
     if (dotsArray.length < 4) {
       dotsArray.removeClass(CORE_CLASS_SELECTED);
       dotsArray[curSelectedIndex].classList.add(CORE_CLASS_SELECTED);
@@ -135,7 +138,7 @@ $.fn.tabsMainDots = function (options) {
     isListen = false;
     curSelectedIndex = Number.parseInt($target.data('index')) || 0;
     config.tabsMoverCtrl
-    && config.tabsMoverCtrl.moveToSlide(curSelectedIndex + 1)
+    && config.tabsMoverCtrl.moveToSlide(curSelectedIndex)
       .always(() => {
         isListen = true;
       });

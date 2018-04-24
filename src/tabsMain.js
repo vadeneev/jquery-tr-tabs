@@ -34,6 +34,7 @@ $.fn.tabsMain = function (options) {
     isHandleResize: true,
     itemsPerSlide: 1, //IPS : 1.. 
     isIPSFitsScreen: false,
+    slideCount: 1,
     useOverflowOffset: true, //todo : create variety    
     start: [],
     drag: [],
@@ -55,6 +56,7 @@ $.fn.tabsMain = function (options) {
   function initValues(options) {
     settings = {...settings, ...options};
     childs = $that.find(`${settings.childSelector}`);
+    settings.slideCount = childs.length;
   }
 
   // end INIT
@@ -131,6 +133,7 @@ $.fn.tabsMain = function (options) {
     
     $that.find(`.${COMPENSATION_ELEMENT}`).remove();
     settings.itemsPerSlide = nextIPSvalue;
+    settings.slideCount = Math.ceil(childs.length / nextIPSvalue);
 
     let divide = childs.length / settings.itemsPerSlide;
     let width = childs[childs.length - 1].offsetWidth;
