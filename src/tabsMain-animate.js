@@ -18,19 +18,9 @@ $.fn.tabsMainAnimate = function (config) {
 
   init();
 
-  function updateBasis() {
+  function update() {
     boundaryBox = settings.tabsCore.getOffsets();
-    itemsPerSlide = settings.tabsCore.getSettings().itemsPerSlide;
-    basis = boundaryBox[`${axis}Min`];
-    basisMax = convertToBasis(boundaryBox[`${axis}Max`]);
-  }
-
-  function convertToBasis(value) {
-    return value - basis;
-  }
-
-  function convertFromBasis(value) {
-    return value + basis;
+    itemsPerSlide = settings.tabsCore.getSettings().itemsPerSlide;    
   }
 
   function getMeasure(element) {
@@ -62,11 +52,14 @@ $.fn.tabsMainAnimate = function (config) {
   function slideToMin() {
     let lastIndex = 0;
     let slideCount = settings.tabsCore.getSettings().slideCount;
+    itemsPerSlide = settings.tabsCore.getSettings().itemsPerSlide;
 
     for (let index = 0; index < slideCount; index++) {
       let startItem = itemsPerSlide * index;      
       let elem = $($tabsItems[startItem]);      
       let visiblePosition = settings.tabsCore.getTransform()[axis] + ( elem.offset().left - elem.parent().offset().left ); //todo: use abstract
+      //TODO: continue rf
+      //let visiblePosition = settings.tabsCore.getBoundInWrapper(elem);
 
       if ( visiblePosition >= 0) { break; }
       lastIndex = index;      
@@ -82,50 +75,20 @@ $.fn.tabsMainAnimate = function (config) {
   function slideToMax() {
     let lastIndex = 0;
     let slideCount = settings.tabsCore.getSettings().slideCount;
+    itemsPerSlide = settings.tabsCore.getSettings().itemsPerSlide;
     let width = settings.tabsCore.getElement().parent().width();
 
     for (let index = 0; index < slideCount; index++) {
       let startItem = itemsPerSlide * index;
       let elem = $($tabsItems[startItem]);      
       let visiblePosition = settings.tabsCore.getTransform()[axis] + ( elem.offset().left - elem.parent().offset().left ); //todo: use abstract
-
+      //let visiblePosition = settings.tabsCore.getBoundInWrapper(elem);
+//FIXME: error slide right
       if ( visiblePosition > width) { break; }
       lastIndex = index;      
     }
 
     moveToSlide(lastIndex);
-  }
-
-  function considerItemsInSlide(newItemIndex, directionStr, localMeasure) {
-    let addDelta = 0;
-    let lookupArr = [];
-    let startIndex;
-    let endIndex;
-
-    if (directionStr.toLowerCase() === 'max') {
-      startIndex = newItemIndex;
-      endIndex = newItemIndex + itemsPerSlide;
-      addDelta -= localMeasure;
-    }
-    else if (directionStr.toLowerCase() === 'min') {
-      startIndex = newItemIndex - itemsPerSlide;
-      endIndex = newItemIndex;
-
-      if (startIndex < 0) {
-        startIndex = 0;
-      }
-      else {
-        addDelta -= localMeasure;
-      }
-    }
-
-    lookupArr = $tabsItems.slice(startIndex, endIndex);
-
-    lookupArr.each((index, item) => {
-      addDelta += getMeasure($(item));
-    });
-
-    return addDelta;
   }
 
   /**
@@ -148,15 +111,15 @@ $.fn.tabsMainAnimate = function (config) {
   }
 
   function moveToSlide(slideNumber) {
-    updateBasis();
+    update();
     
     if (itemsPerSlide === 1) {
-      moveToElement($tabsItems[slideNumber]);
-      return;
+      return moveToElement($($tabsItems[slideNumber]));      
     }
-    //TODO: check for redundant 
+    
     let firstIndex = itemsPerSlide * slideNumber;     
-    let newPoint = { [axis]: boundaryBox[`${axis}Max`] - getLeftBound($tabsItems[firstIndex]) };
+    let elem = $($tabsItems[firstIndex]);    
+    let newPoint = { [axis]: boundaryBox[`${axis}Max`] - getLeftBound(elem) };         
 
     return startSlideToPoint(newPoint);
   }
@@ -173,24 +136,8 @@ $.fn.tabsMainAnimate = function (config) {
    * @returns {number}
    * @private
    */
-  function getLeftBound($element) {
-    let leftOffset = 0;
-    let curElement;
-    
-    if ($element instanceof jQuery) {
-      curElement = $element.get(0);
-    } 
-    else if ($element instanceof Element) {
-      curElement = $element;
-    }
-
-    $tabsItems.each((index, element) => {
-      if (element.isSameNode(curElement)) {
-        return false;
-      }
-      leftOffset += getMeasure(element);
-    });
-    return leftOffset;
+  function getLeftBound($element) {    
+    return $element.offset().left - $element.parent().offset().left;
   }
 
   function rejectAll() {
@@ -222,6 +169,7 @@ $.fn.tabsMainAnimate = function (config) {
   }
 
   function continueSliding(event) {
+    update();
     if (event.pathAbs < event.settings.tapPrecision) {
       return;
     }

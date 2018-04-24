@@ -14,6 +14,7 @@ $.fn.tabsMainDots = function (options) {
     accuracy: 25,
     tabsMoverCtrl: null,
     tabsCore: null,
+    modernStyle: true,
   };
  
   let triggerPoint = {x: '50%', y: '50%'};
@@ -87,21 +88,19 @@ $.fn.tabsMainDots = function (options) {
       return;
     }
 
-    if (dotsArray.length < 4) {
-      dotsArray.removeClass(CORE_CLASS_SELECTED);
-      dotsArray[curSelectedIndex].classList.add(CORE_CLASS_SELECTED);
-      return;
-    }
-
     dotsArray.removeClass(CORE_CLASS_SELECTED);
+    dotsArray[curSelectedIndex].classList.add(CORE_CLASS_SELECTED);    
+
+    if (dotsArray.length < 4) { return; }
     dotsArray.removeClass(CORE_CLASS_SMALL);
     dotsArray.removeClass(CORE_CLASS_SMALLEST);
-    dotsArray.removeClass('hidden');
-    dotsArray[curSelectedIndex].classList.add(CORE_CLASS_SELECTED);
+    dotsArray.removeClass('hidden');    
+    
+    if (!config.modernStyle) { return; }
 
     if (curSelectedIndex > 2) {
-      handleLeft();
-      handleRight();
+      handleMax();
+      handleMin();
     }
     else {
       dotsArray[3].classList.add(CORE_CLASS_SMALL);
@@ -109,13 +108,13 @@ $.fn.tabsMainDots = function (options) {
     }
   }
 
-  function handleRight() {
+  function handleMin() {
     dotsArray[curSelectedIndex + 1] && dotsArray[curSelectedIndex + 1].classList.add(CORE_CLASS_SMALL);
     dotsArray[curSelectedIndex + 2] && dotsArray[curSelectedIndex + 2].classList.add(CORE_CLASS_SMALLEST);
     hideRange(curSelectedIndex + 3, dotsArray.length);
   }
 
-  function handleLeft() {
+  function handleMax() {
     let hideEnd = curSelectedIndex - 5;
     if (dotsArray.length - curSelectedIndex < 3) {
       hideEnd = curSelectedIndex - 4;
@@ -152,11 +151,9 @@ $.fn.tabsMainDots = function (options) {
     let summWidth = 0;
 
     for (let index = 0; index < slideCount; index++) {
-      let startItem = itemsPerSlide * index;
-      
+      let startItem = itemsPerSlide * index;      
       let elem = $($tabsItems[startItem]);
-      
-      let visiblePosition = $event.vectorTransform[axis] + ( elem.offset().left - elem.parent().offset().left ); //todo: use abstract
+      let visiblePosition = config.tabsCore.getBoundInWrapper(elem);
 
       if ( visiblePosition < triggerPoint[axis]) {
         curSelectedIndex = index;

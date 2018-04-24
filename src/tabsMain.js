@@ -26,6 +26,7 @@ $.fn.tabsMain = function (options) {
   let eventTarget;
   let childs;
   let previousContainerSize;
+  let $parentElement;
   let settings = {
     childSelector: '> li',
     axis: 'x',
@@ -57,6 +58,7 @@ $.fn.tabsMain = function (options) {
     settings = {...settings, ...options};
     childs = $that.find(`${settings.childSelector}`);
     settings.slideCount = childs.length;
+    $parentElement = $that.parent();
   }
 
   // end INIT
@@ -315,6 +317,7 @@ $.fn.tabsMain = function (options) {
 
   function changeAxis(axis) {
     settings.axis = axis;
+    throw 'Not implemented';
   }
 
   /**
@@ -362,6 +365,14 @@ $.fn.tabsMain = function (options) {
     return +str;
   }
 
+  function getBoundInWrapper($element) {
+    if (settings.axis === 'x') {
+      return vectorTransform.x + ( $element.offset().left - $that.offset().left );
+    }
+    return vectorTransform.y + ( $element.offset().top - $that.offset().top );
+  }
+
+
   return {
     enable,
     disable,
@@ -371,6 +382,8 @@ $.fn.tabsMain = function (options) {
     subscribe,
     unSubscribe,
     setItemsPerSlide,
+    getBoundInWrapper,
+
     getChilds: () => childs,
     getSettings: () => settings,
     getElement: () => $that,
