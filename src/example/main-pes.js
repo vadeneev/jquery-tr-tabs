@@ -11,26 +11,26 @@ $(
 function secondTabs() {
   let $tabs = $('.js-second-case .tabs_1');
   let $childItems = $tabs.find('> li');
-  let my = $tabs.tabsMain({
+  let tabsObject = $tabs.tabsMain({
     childSelector: '> li'
   });
 
   let moveTabs = $tabs.tabsMainAnimate({
-    tabsCore: my,        
+    tabsCore: tabsObject,        
   });
 
   let dots = $('.js-dots-container').tabsMainDots({
     triggerPoint: {x: 100, y: 0},
     tabsMoverCtrl: moveTabs,
-    tabsCore: my,
+    tabsCore: tabsObject,
   });
 
-  my.subscribe({
+  tabsObject.subscribe({
     event: 'stop',
     callback: moveTabs.continueSliding
   });
 
-  my.subscribe({
+  tabsObject.subscribe({
     event: 'update',
     callback: dots.trackTabs
   });
@@ -38,13 +38,11 @@ function secondTabs() {
 }
 
 function firstTabs() {
-  let $tabs = $('.js-first-case .tabs_1');
-  let $childItems = $tabs.find('> li');
-  let my = $tabs.tabsMain({
+  let $tabs = $('.js-first-case .tabs_1');  
+  let tabsObject = $tabs.tabsMain({
     childSelector: '> li'
   });
 
-  // for left-right buttons
   let btn1 = $('.js-first-case .btn-left');
   let btn2 = $('.js-first-case .btn-right');
 
@@ -63,7 +61,7 @@ function firstTabs() {
     ]
   });
 
-  my.subscribe({
+  tabsObject.subscribe({
     event: 'update',
     callback: btns.update
   });
@@ -72,7 +70,7 @@ function firstTabs() {
 
   // create 'animation of move'
   let moveTabs = $tabs.tabsMainAnimate({
-    tabsCore: my,    
+    tabsCore: tabsObject,    
   });
   btn1.on('click', moveTabs.slideToLeft);
   btn2.on('click', moveTabs.slideToRight);
@@ -81,14 +79,14 @@ function firstTabs() {
   document.getElementById('itemsPerSlide').addEventListener('blur', handleChangeItemsSlide);
 
   function handleChangeItemsSlide(event) {
-    my.setItemsPerSlide(Number.parseInt(event.target.value) || 1);
+    tabsObject.setItemsPerSlide(Number.parseInt(event.target.value) || 1);
   }
 }
 
 function oversizedTabs() {
   let $tabs = $('.js-oversized-case .tabs_1');
   let $childItems = $tabs.find('> li');
-  let my = $tabs.tabsMain({
+  let tabsObject = $tabs.tabsMain({
     childSelector: '> li'
   });
 
@@ -111,7 +109,7 @@ function oversizedTabs() {
     ]
   });
 
-  my.subscribe({
+  tabsObject.subscribe({
     event: 'update',
     callback: btns.update
   });
@@ -120,7 +118,7 @@ function oversizedTabs() {
 
   // create 'animation of move'
   let moveTabs = $tabs.tabsMainAnimate({
-    tabsCore: my,    
+    tabsCore: tabsObject,    
   });
   btn1.on('click', moveTabs.slideToLeft);
   btn2.on('click', moveTabs.slideToRight);
@@ -133,39 +131,38 @@ function dotsAdaptedCase() {
   let infoSlides = $('.js-slides-info');
   let $tabs = $('.js-dots-adapt-case .tabs_1');
   let $childItems = $tabs.find('> li');
-  let my = $tabs.tabsMain({
+  let tabsObject = $tabs.tabsMain({
     isIPSFitsScreen: true,    
     childSelector: '> li'    
   });
     
   let moveTabs = $tabs.tabsMainAnimate({
-    tabsCore: my,
-  });  
-  window.tabs = moveTabs;
+    tabsCore: tabsObject,
+  });
 
   let dots = $('.js-adapt-dots').tabsMainDots({
     triggerPoint: {x: '50%', y: 0},
     tabsMoverCtrl: moveTabs,
-    tabsCore: my
+    tabsCore: tabsObject
   });
 
-  my.subscribe({
+  tabsObject.subscribe({
     event: 'stop',
     callback: moveTabs.continueSliding
   });
 
-  my.subscribe({
+  tabsObject.subscribe({
     event: 'update',
     callback: dots.trackTabs
   });
 
-  my.subscribe({
+  tabsObject.subscribe({
     event: 'update',
     callback: dots.reManageDots
   });
 
-  infoSlides.attr('items', my.getSettings().itemsPerSlide);
+  infoSlides.attr('items', tabsObject.getSettings().itemsPerSlide);
   $(window).on('resize', () => {
-    infoSlides.attr('items', my.getSettings().itemsPerSlide);
+    infoSlides.attr('items', tabsObject.getSettings().itemsPerSlide);
   });
 }

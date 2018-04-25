@@ -15,12 +15,15 @@ $.fn.tabsMainAnimate = function (config) {
   let itemsPerSlide = 1;
   let boundaryBox;
   let basisMax;
+  let slideCount;
 
   init();
 
   function update() {
     boundaryBox = settings.tabsCore.getOffsets();
-    itemsPerSlide = settings.tabsCore.getSettings().itemsPerSlide;    
+    itemsPerSlide = settings.tabsCore.getSettings().itemsPerSlide;
+    slideCount = settings.tabsCore.getSettings().slideCount;
+    $tabsItems = settings.tabsCore.getChilds();
   }
 
   function getMeasure(element) {
@@ -42,7 +45,7 @@ $.fn.tabsMainAnimate = function (config) {
   function init() {
     settings = {...settings, ...config};
     axis = settings.tabsCore.getSettings().axis;    
-    $tabsItems = settings.tabsCore.getChilds();
+    update();
   }
 
   /**
@@ -51,15 +54,12 @@ $.fn.tabsMainAnimate = function (config) {
    */
   function slideToMin() {
     let lastIndex = 0;
-    let slideCount = settings.tabsCore.getSettings().slideCount;
-    itemsPerSlide = settings.tabsCore.getSettings().itemsPerSlide;
+    update();
 
     for (let index = 0; index < slideCount; index++) {
-      let startItem = itemsPerSlide * index;      
-      let elem = $($tabsItems[startItem]);      
-      let visiblePosition = settings.tabsCore.getTransform()[axis] + ( elem.offset().left - elem.parent().offset().left ); //todo: use abstract
-      //TODO: continue rf
-      //let visiblePosition = settings.tabsCore.getBoundInWrapper(elem);
+      const startItem = itemsPerSlide * index;      
+      const elem = $($tabsItems[startItem]);            
+      const visiblePosition = settings.tabsCore.getBoundInWrapper(elem);
 
       if ( visiblePosition >= 0) { break; }
       lastIndex = index;      
@@ -73,22 +73,21 @@ $.fn.tabsMainAnimate = function (config) {
    * @public
    */
   function slideToMax() {
-    let lastIndex = 0;
-    let slideCount = settings.tabsCore.getSettings().slideCount;
-    itemsPerSlide = settings.tabsCore.getSettings().itemsPerSlide;
-    let width = settings.tabsCore.getElement().parent().width();
+    update();
+    const width = settings.tabsCore.getElement().parent().width();    
 
     for (let index = 0; index < slideCount; index++) {
-      let startItem = itemsPerSlide * index;
-      let elem = $($tabsItems[startItem]);      
-      let visiblePosition = settings.tabsCore.getTransform()[axis] + ( elem.offset().left - elem.parent().offset().left ); //todo: use abstract
-      //let visiblePosition = settings.tabsCore.getBoundInWrapper(elem);
-//FIXME: error slide right
-      if ( visiblePosition > width) { break; }
-      lastIndex = index;      
-    }
+      const startItem = itemsPerSlide * index;
+      const endItem = startItem + itemsPerSlide - 1;
+      const elem = $($tabsItems[endItem]);
+      const rightBorder = settings.tabsCore.getBoundInWrapper(elem) + elem.outerWidth();      
 
-    moveToSlide(lastIndex);
+      if ( rightBorder > width) {
+        const point = { [axis]: settings.tabsCore.getTransform()[axis] - rightBorder + width};
+        startSlideToPoint(point);
+        break;
+      }
+    }        
   }
 
   /**
@@ -169,7 +168,6 @@ $.fn.tabsMainAnimate = function (config) {
   }
 
   function continueSliding(event) {
-    update();
     if (event.pathAbs < event.settings.tapPrecision) {
       return;
     }

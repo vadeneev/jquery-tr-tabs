@@ -38,6 +38,49 @@
             </div>
             <span class="btn btn-right">></span>
         </div>
+        <details>
+            <pre>
+                // 1. Create main tabs object (calculates offsets + allows to drag in axis (x b y default))
+                let $tabs = $('.js-first-case .tabs_1');  
+                let tabsObject = $tabs.tabsMain({
+                    childSelector: '> li'
+                });
+                
+                //2. add buttons + initialise them (where, axis, when)
+                let btn1 = $('.js-first-case .btn-left');
+                let btn2 = $('.js-first-case .btn-right');
+                
+                let btns = $tabs.tabsMainSlideBtns({
+                    btns: [
+                    {
+                        $element: btn1,
+                        axis: 'x',
+                        targetOffset: 'xMax'
+                    },
+                    {
+                        $element: btn2,
+                        axis: 'x',
+                        targetOffset: 'xMin'
+                    }
+                    ]
+                });
+                
+                //3. subscribe buttons to listen updates (drag/resize etc)
+
+                tabsObject.subscribe({
+                    event: 'update',
+                    callback: btns.update
+                });
+                
+                //4. Add slide ability for buttons
+                let moveTabs = $tabs.tabsMainAnimate({
+                    tabsCore: tabsObject,    
+                  });
+                  btn1.on('click', moveTabs.slideToLeft);
+                  btn2.on('click', moveTabs.slideToRight);
+                
+            </pre>
+        </details>
     </section>
     <section class="js-dots-adapt-case">
         <h2>Dots adapted <span class="slides-info js-slides-info" items="0"> Items per Slide:<span></h2>
@@ -55,20 +98,41 @@
         <div class="dots-container">
             <div class="js-adapt-dots"></div>
         </div>
-    </section>
-    <section class="js-oversized-case">
-        <h2>Horizontal + buttons + enough space (responsive to check)</h2>
-        <div class="wrapper wrapper-oversize">
-            <span class="btn btn-left"><</span>
-            <div class="simple-container">
-                <ul class="tabs_1 tabs-oversized">
-                    <li class="child-item"><a href="#0">0</a></li>
-                    <li class="child-item"><a href="#1">1</a></li>
-                    <li class="child-item"><a href="#2">2</a></li>
-                </ul>
-            </div>
-            <span class="btn btn-right">></span>
-        </div>
+        <details>
+            <pre>
+                    let $tabs = $('.js-dots-adapt-case .tabs_1');
+                    let $childItems = $tabs.find('> li');
+                    let tabsObject = $tabs.tabsMain({
+                      isIPSFitsScreen: true,    
+                      childSelector: '> li'    
+                    });
+                      
+                    let moveTabs = $tabs.tabsMainAnimate({
+                      tabsCore: tabsObject,
+                    });
+                  
+                    let dots = $('.js-adapt-dots').tabsMainDots({
+                      triggerPoint: {x: '50%', y: 0},
+                      tabsMoverCtrl: moveTabs,
+                      tabsCore: tabsObject
+                    });
+                  
+                    tabsObject.subscribe({
+                      event: 'stop',
+                      callback: moveTabs.continueSliding
+                    });
+                  
+                    tabsObject.subscribe({
+                      event: 'update',
+                      callback: dots.trackTabs
+                    });
+                  
+                    tabsObject.subscribe({
+                      event: 'update',
+                      callback: dots.reManageDots
+                    });
+            </pre>
+        </details>
     </section>
     <section class="js-second-case">
         <h2>Simple Horizontal + dots</h2>
@@ -86,7 +150,50 @@
         <div class="dots-container">
             <div class="js-dots-container"></div>
         </div>
+        <details>
+            <pre>
+                let $tabs = $('.js-second-case .tabs_1');
+                let $childItems = $tabs.find('> li');
+                let tabsObject = $tabs.tabsMain({
+                    childSelector: '> li'
+                });
+                
+                let moveTabs = $tabs.tabsMainAnimate({
+                    tabsCore: tabsObject,        
+                });
+                
+                let dots = $('.js-dots-container').tabsMainDots({
+                    triggerPoint: {x: 100, y: 0},
+                    tabsMoverCtrl: moveTabs,
+                    tabsCore: tabsObject,
+                });
+                
+                tabsObject.subscribe({
+                    event: 'stop',
+                    callback: moveTabs.continueSliding
+                });
+                
+                tabsObject.subscribe({
+                    event: 'update',
+                    callback: dots.trackTabs
+                });
+            </pre>
+        </details>
     </section>
+    <section class="js-oversized-case">
+            <h2>Horizontal + buttons + enough space (responsive to check)</h2>
+            <div class="wrapper wrapper-oversize">
+                <span class="btn btn-left"><</span>
+                <div class="simple-container">
+                    <ul class="tabs_1 tabs-oversized">
+                        <li class="child-item"><a href="#0">0</a></li>
+                        <li class="child-item"><a href="#1">1</a></li>
+                        <li class="child-item"><a href="#2">2</a></li>
+                    </ul>
+                </div>
+                <span class="btn btn-right">></span>
+            </div>
+        </section>
 </main>
 </body>
 </html>

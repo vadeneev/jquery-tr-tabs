@@ -9,7 +9,7 @@ $.fn.tabsMainDots = function (options) {
   const CORE_CLASS_SMALL = 'dot-nav--small';
   const CORE_CLASS_SMALLEST = 'dot-nav--smallest';
 
-  let config = {
+  let settings = {
     triggerPoint: {x: '50%', y: '50%'},
     accuracy: 25,
     tabsMoverCtrl: null,
@@ -30,30 +30,30 @@ $.fn.tabsMainDots = function (options) {
   init();
 
   function init() {
-    config = {...config, ...options};
+    settings = {...settings, ...options};
     $that.on('click', handleDotCLick);
-    axis = config.tabsCore.getSettings().axis;    
+    axis = settings.tabsCore.getSettings().axis;    
     reManageDots();
     updateDots();
     init = $.noop;
   }
 
   function updateTriggerPoint() {    
-    if (config.triggerPoint[axis].toString().indexOf('%') === -1) { 
-      triggerPoint[axis] = config.triggerPoint[axis];
+    if (settings.triggerPoint[axis].toString().indexOf('%') === -1) { 
+      triggerPoint[axis] = settings.triggerPoint[axis];
       return; 
     }
 
-    let parentWidthPercent = config.tabsCore.getElement().outerWidth() / 100;
-    let percent = parseInt(config.triggerPoint[axis]);
+    let parentWidthPercent = settings.tabsCore.getElement().outerWidth() / 100;
+    let percent = parseInt(settings.triggerPoint[axis]);
 
     triggerPoint[axis] = percent * parentWidthPercent;
   }
 
   function reManageDots() {
-    $tabsItems = config.tabsCore.getChilds();
-    itemsPerSlide = config.tabsCore.getSettings().itemsPerSlide;
-    let nextSlideCount = config.tabsCore.getSettings().slideCount;
+    $tabsItems = settings.tabsCore.getChilds();
+    itemsPerSlide = settings.tabsCore.getSettings().itemsPerSlide;
+    let nextSlideCount = settings.tabsCore.getSettings().slideCount;
     
     updateTriggerPoint();
 
@@ -96,7 +96,7 @@ $.fn.tabsMainDots = function (options) {
     dotsArray.removeClass(CORE_CLASS_SMALLEST);
     dotsArray.removeClass('hidden');    
     
-    if (!config.modernStyle) { return; }
+    if (!settings.modernStyle) { return; }
 
     if (curSelectedIndex > 2) {
       handleMax();
@@ -136,8 +136,8 @@ $.fn.tabsMainDots = function (options) {
 
     isListen = false;
     curSelectedIndex = Number.parseInt($target.data('index')) || 0;
-    config.tabsMoverCtrl
-    && config.tabsMoverCtrl.moveToSlide(curSelectedIndex)
+    settings.tabsMoverCtrl
+    && settings.tabsMoverCtrl.moveToSlide(curSelectedIndex)
       .always(() => {
         isListen = true;
       });
@@ -153,7 +153,7 @@ $.fn.tabsMainDots = function (options) {
     for (let index = 0; index < slideCount; index++) {
       let startItem = itemsPerSlide * index;      
       let elem = $($tabsItems[startItem]);
-      let visiblePosition = config.tabsCore.getBoundInWrapper(elem);
+      let visiblePosition = settings.tabsCore.getBoundInWrapper(elem);
 
       if ( visiblePosition < triggerPoint[axis]) {
         curSelectedIndex = index;

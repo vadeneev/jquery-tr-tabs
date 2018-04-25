@@ -104,12 +104,13 @@ $.fn.tabsMain = function (options) {
 
   function fitItemsToExternal() {
     let currentWidth = $that.parent().parent().width();
+    let clearChilds = childs.not(`.${COMPENSATION_ELEMENT}`);
     previousContainerSize = currentWidth;
 
-    let summ = childs[0].offsetWidth;
+    let summ = clearChilds[0].offsetWidth;
 
-    for (let index = 1; index < childs.length; index++) {
-      const element = childs[index];
+    for (let index = 1; index < clearChilds.length; index++) {
+      const element = clearChilds[index];
       let nextSumm = summ + element.offsetWidth;
 
       if (nextSumm > currentWidth) {        
@@ -119,6 +120,7 @@ $.fn.tabsMain = function (options) {
           'width': summ ,
           'max-width': '100%'
         });
+        
         return index;
       }
 
@@ -132,8 +134,10 @@ $.fn.tabsMain = function (options) {
 
     let nextIPSvalue = fitItemsToExternal();
     if (nextIPSvalue === settings.itemsPerSlide) { return; }
-    
-    $that.find(`.${COMPENSATION_ELEMENT}`).remove();
+
+    childs.filter(`.${COMPENSATION_ELEMENT}`).remove();
+    childs = childs.not(`.${COMPENSATION_ELEMENT}`);
+
     settings.itemsPerSlide = nextIPSvalue;
     settings.slideCount = Math.ceil(childs.length / nextIPSvalue);
 
@@ -145,11 +149,14 @@ $.fn.tabsMain = function (options) {
       
       for (let index = 0; index < extraItems; index++) {
         let $element = $(`<li class=${COMPENSATION_ELEMENT}>`);
+
         $element.css({
           'min-width': width,
           'height': '1px'
         });
+
         $that.append($element);
+        childs = childs.add($element);
       }
     }
     invokeCallback(settings.update, 'dotsUpdate');
@@ -342,6 +349,7 @@ $.fn.tabsMain = function (options) {
 
   function setItemsPerSlide(newValue) {
     settings.itemsPerSlide = newValue;
+    settings.slideCount = Math.ceil(childs.length / newValue);
   }
 
   function subscribe({event = 'update', callback}) {
@@ -367,7 +375,7 @@ $.fn.tabsMain = function (options) {
 
   function getBoundInWrapper($element) {
     if (settings.axis === 'x') {
-      return vectorTransform.x + ( $element.offset().left - $that.offset().left );
+      return vectorTransform.x + ( $element.offset().left - $that.offset().left );      
     }
     return vectorTransform.y + ( $element.offset().top - $that.offset().top );
   }

@@ -40,7 +40,10 @@
 
     transition: all 0.1s;
 }
-
+details {
+    width: 100%;
+    padding: 20px;
+}
 .tabs_1.tabs-oversized {
     width: 100%;
 }
