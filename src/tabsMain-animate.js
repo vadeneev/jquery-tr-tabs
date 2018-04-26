@@ -1,20 +1,15 @@
 $.fn.tabsMainAnimate = function (config) {
   let settings = {
     tabsCore: null,    
-    tolerance: 40
   };
 
   let $tabsItems = [];
-  let axis = 'x';
-  let accuracy = 1;
-  let speed = 35;
+  let axis = 'x';  
   let prevTransform = {x: 0, y: 0};
   let animationId = null;
-  let deferred;
-  let basis = 0;
+  let deferred;  
   let itemsPerSlide = 1;
-  let boundaryBox;
-  let basisMax;
+  let boundaryBox;  
   let slideCount;
 
   init();
@@ -64,7 +59,6 @@ $.fn.tabsMainAnimate = function (config) {
       if ( visiblePosition >= 0) { break; }
       lastIndex = index;      
     }
-
     moveToSlide(lastIndex);
   }
   
@@ -83,6 +77,7 @@ $.fn.tabsMainAnimate = function (config) {
       const rightBorder = settings.tabsCore.getBoundInWrapper(elem) + elem.outerWidth();      
 
       if ( rightBorder > width) {
+        //FIXME: CHECK IF ALL OK
         const point = { [axis]: settings.tabsCore.getTransform()[axis] - rightBorder + width};
         startSlideToPoint(point);
         break;
@@ -90,53 +85,41 @@ $.fn.tabsMainAnimate = function (config) {
     }        
   }
 
-  /**
-   * @description centers to exact element
-   * @param {jquery object}
-   * @public
-   */
-  function centerToElementX($element, callBack) {
-    let curTransfrom = settings.tabsCore.getTransform();
-    let wrapperWidth = settings.tabsCore.getElement().parent().outerWidth();
-    let leftOffset = getLeftBound($element);
-    let width = $element.outerWidth();
-    let sign = 1;
-    let pointX = wrapperWidth / 2 - leftOffset - width / 2;
-
-    if (curTransfrom.x > pointX) {
-      sign = -1;
-    }
-    return startSlideToPoint({x: pointX, y: 0}, sign);
-  }
-
   function moveToSlide(slideNumber) {
     update();
     
-    if (itemsPerSlide === 1) {
+    if (itemsPerSlide === 1) {      
       return moveToElement($($tabsItems[slideNumber]));      
     }
     
     let firstIndex = itemsPerSlide * slideNumber;     
     let elem = $($tabsItems[firstIndex]);    
-    let newPoint = { [axis]: boundaryBox[`${axis}Max`] - getLeftBound(elem) };         
+    //FIXME: ERROR
+    let newPoint = { [axis]: boundaryBox[`${axis}Max`] - settings.tabsCore.getBoundInWrapper(elem) };         
 
     return startSlideToPoint(newPoint);
   }
 
   function moveToElement(element) {
-    let newPoint = { [axis]: boundaryBox[`${axis}Max`] - getLeftBound(element) };
+    //FIXME: ERROR
+    let newPoint = { [axis]: settings.tabsCore.getBoundInWrapper(element) };
     
     return startSlideToPoint(newPoint);
   }
-  
-  /**
-   * @description calculates left bound of element respective to its parent
-   * @param {jquery object}
-   * @returns {number}
-   * @private
-   */
-  function getLeftBound($element) {    
-    return $element.offset().left - $element.parent().offset().left;
+
+  function sideSlideToElement($element) {
+    let minBound = settings.tabsCore.getBoundInWrapper($element);
+
+    if (minBound < 0) {
+      return moveToElement($element);
+    }
+    
+    const width = settings.tabsCore.getElement().parent().width();     
+
+    if (minBound >= width) {
+      let newPoint = { [axis]: settings.tabsCore.getTransform()[axis] - settings.tabsCore.getBoundInWrapper($element) - getMeasure($element)};
+      return startSlideToPoint(newPoint);
+    }
   }
 
   function rejectAll() {
@@ -183,7 +166,7 @@ $.fn.tabsMainAnimate = function (config) {
     slideToLeft: slideToMin,
     slideToRight: slideToMax,
     slideToPoint,
-    centerToElementX,
+    sideSlideToElement,    
     continueSliding,
     moveToSlide,
     moveToElement,

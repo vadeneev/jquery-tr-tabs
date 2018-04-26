@@ -72,6 +72,8 @@ function firstTabs() {
   let moveTabs = $tabs.tabsMainAnimate({
     tabsCore: tabsObject,    
   });
+  window.moveTabs = moveTabs;
+
   btn1.on('click', moveTabs.slideToLeft);
   btn2.on('click', moveTabs.slideToRight);
 
