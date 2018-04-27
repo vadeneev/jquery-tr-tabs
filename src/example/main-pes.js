@@ -71,11 +71,10 @@ function firstTabs() {
   // create 'animation of move'
   let moveTabs = $tabs.tabsMainAnimate({
     tabsCore: tabsObject,    
-  });
-  window.moveTabs = moveTabs;
+  });  
 
-  btn1.on('click', moveTabs.slideToLeft);
-  btn2.on('click', moveTabs.slideToRight);
+  btn1.on('click', moveTabs.slideToMin);
+  btn2.on('click', moveTabs.slideToMax);
 
   //
   document.getElementById('itemsPerSlide').addEventListener('blur', handleChangeItemsSlide);
@@ -122,8 +121,8 @@ function oversizedTabs() {
   let moveTabs = $tabs.tabsMainAnimate({
     tabsCore: tabsObject,    
   });
-  btn1.on('click', moveTabs.slideToLeft);
-  btn2.on('click', moveTabs.slideToRight);
+  btn1.on('click', moveTabs.slideToMin);
+  btn2.on('click', moveTabs.slideToMax);
 
   //
 

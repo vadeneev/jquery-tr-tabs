@@ -70,6 +70,7 @@ $.fn.tabsMain = function (options) {
   function subscribeHandlers() {
     $that.on('mousedown', handleDown);
     $that.on('touchstart', handleTouchStart);
+
     settings.isHandleResize && $(window).on('resize', handleResize);
   }
 
@@ -143,6 +144,7 @@ $.fn.tabsMain = function (options) {
 
     let divide = childs.length / settings.itemsPerSlide;
     let width = childs[childs.length - 1].offsetWidth;
+    let height = childs[childs.length - 1].offsetHeight;
 
     if ( getDecimal(divide) > 0) {      
       let extraItems = (Math.ceil(divide) * settings.itemsPerSlide) - childs.length;
@@ -152,7 +154,8 @@ $.fn.tabsMain = function (options) {
 
         $element.css({
           'min-width': width,
-          'height': '1px'
+          'width': width,
+          'height': height
         });
 
         $that.append($element);
@@ -334,9 +337,7 @@ $.fn.tabsMain = function (options) {
   function setTransform(newTransform) {
     vectorTransform = {...newTransform};
 
-    let result = setTransformBounds();
-
-    return result;
+    return setTransformBounds();
   }
 
   /**
@@ -366,6 +367,7 @@ $.fn.tabsMain = function (options) {
   }
 
   function getDecimal(num) {
+    // may be replaced with combination of trunc, but with core-js for ie11+ support
     var str = "" + num;
     var zeroPos = str.indexOf(".");
     if (zeroPos == -1) return 0;
@@ -373,18 +375,25 @@ $.fn.tabsMain = function (options) {
     return +str;
   }
 
-  function getBoundInWrapper($element) {
-    if (settings.axis === 'x') {      
-      return vectorTransform.x + ( $element.offset().left - $that.offset().left );      
+  function convertDOMelement(element) {
+    if (element instanceof jQuery) { 
+      return element.get(0); 
     }
-    return vectorTransform.y + ( $element.offset().top - $that.offset().top );
+    return element;
+  }
+
+  function getBoundInWrapper(element) {
+    let elem = convertDOMelement(element);
+
+    if (settings.axis === 'x') {      
+      return vectorTransform.x + ( elem.getBoundingClientRect().left - $that[0].getBoundingClientRect().left );      
+    }
+    return vectorTransform.y + ( elem.getBoundingClientRect().top - $that[0].getBoundingClientRect().top );
   }
 
   function getTransformToElement(element) {    
     let length;
-    let elem = element;
-    
-    if (element instanceof jQuery) { elem = element.get(0); }
+    let elem = convertDOMelement(element);
 
     if (settings.axis === 'x') {
       length = elem.getBoundingClientRect().left - childs[0].getBoundingClientRect().left;
@@ -394,6 +403,16 @@ $.fn.tabsMain = function (options) {
     }
     
     return {[settings.axis]: settings.allowedOffsets[`${settings.axis}Max`] - length};
+  }
+
+  function getXYfromMatrix($element) {
+    let result = [];
+
+    result = $element.css('transform').match(/-?\d+/g).map((value) => parseInt(value));
+    if (matrixStr.indexOf('matrix3D') !== -1) {
+      return { x: result[10], y: result[11] };
+    }
+    return { x: result[5], y: result[6] };
   }
 
   return {
@@ -415,15 +434,3 @@ $.fn.tabsMain = function (options) {
     getOffsets: () => settings.allowedOffsets,
   };
 };
-
-// method to get x y from matrix
-//
-// function getXYfromMatrix($element) {
-//   var result = [];
-
-//   result = $element.css('transform').match(/-?\d+/g).map((value) => parseInt(value));
-//   if (matrixStr.indexOf('matrix3D') !== -1) {
-//     return { x: result[10], y: result[11] };
-//   }
-//   return { x: result[5], y: result[6] };
-// }

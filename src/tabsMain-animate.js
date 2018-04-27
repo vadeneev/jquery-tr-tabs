@@ -53,7 +53,7 @@ $.fn.tabsMainAnimate = function (config) {
 
     for (let index = 0; index < slideCount; index++) {
       const startItem = itemsPerSlide * index;      
-      const elem = $($tabsItems[startItem]);            
+      const elem = $tabsItems[startItem];            
       const visiblePosition = settings.tabsCore.getBoundInWrapper(elem);
 
       if ( visiblePosition >= 0) { break; }
@@ -76,8 +76,8 @@ $.fn.tabsMainAnimate = function (config) {
     for (let index = 0; index < slideCount; index++) {
       const startItem = itemsPerSlide * index;
       const endItem = startItem + itemsPerSlide - 1;
-      const elem = $($tabsItems[endItem]);
-      const rightBorder = settings.tabsCore.getBoundInWrapper(elem) + elem.outerWidth();      
+      const elem = $tabsItems[endItem];
+      const rightBorder = settings.tabsCore.getBoundInWrapper(elem) + elem.offsetWidth;
 
       if ( rightBorder > width) {
         const point = { [axis]: settings.tabsCore.getTransform()[axis] - rightBorder + width};
@@ -104,7 +104,7 @@ $.fn.tabsMainAnimate = function (config) {
     return startSlideToPoint(newPoint);
   }
 
-  function sideSlideToElement($element) {
+  function slideToElement($element) {
     let minBound = settings.tabsCore.getBoundInWrapper($element);
 
     if (minBound < 0) {
@@ -112,10 +112,10 @@ $.fn.tabsMainAnimate = function (config) {
     }
     
     const width = settings.tabsCore.getElement().parent().width();
-//FIXME: need to consider right move - not left
     if (minBound >= width) {
-      let newPoint = { [axis]: settings.tabsCore.getTransform()[axis] - settings.tabsCore.getBoundInWrapper($element) - getMeasure($element)};
-      return startSlideToPoint(newPoint);
+      const rightBorder = settings.tabsCore.getBoundInWrapper($element) + $element.outerWidth();
+      const point = { [axis]: settings.tabsCore.getTransform()[axis] - rightBorder + width};
+      return startSlideToPoint(point);
     }
   }
 
@@ -160,10 +160,10 @@ $.fn.tabsMainAnimate = function (config) {
   }
 
   return {
-    slideToLeft: slideToMin,
-    slideToRight: slideToMax,
+    slideToMin,
+    slideToMax,
     slideToPoint,
-    sideSlideToElement,    
+    slideToElement,    
     continueSliding,
     moveToSlide,
     moveToElement,

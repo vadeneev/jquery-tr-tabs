@@ -10,8 +10,7 @@ $.fn.tabsMainDots = function (options) {
   const CORE_CLASS_SMALLEST = 'dot-nav--smallest';
 
   let settings = {
-    triggerPoint: {x: '50%', y: '50%'},
-    accuracy: 25,
+    triggerPoint: {x: '50%', y: '50%'},    
     tabsMoverCtrl: null,
     tabsCore: null,
     modernStyle: true,
@@ -152,7 +151,7 @@ $.fn.tabsMainDots = function (options) {
 
     for (let index = 0; index < slideCount; index++) {
       let startItem = itemsPerSlide * index;      
-      let elem = $($tabsItems[startItem]);
+      let elem = $tabsItems[startItem];
       let visiblePosition = settings.tabsCore.getBoundInWrapper(elem);
 
       if ( visiblePosition < triggerPoint[axis]) {
