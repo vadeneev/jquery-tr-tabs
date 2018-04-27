@@ -374,12 +374,27 @@ $.fn.tabsMain = function (options) {
   }
 
   function getBoundInWrapper($element) {
-    if (settings.axis === 'x') {
+    if (settings.axis === 'x') {      
       return vectorTransform.x + ( $element.offset().left - $that.offset().left );      
     }
     return vectorTransform.y + ( $element.offset().top - $that.offset().top );
   }
 
+  function getTransformToElement(element) {    
+    let length;
+    let elem = element;
+    
+    if (element instanceof jQuery) { elem = element.get(0); }
+
+    if (settings.axis === 'x') {
+      length = elem.getBoundingClientRect().left - childs[0].getBoundingClientRect().left;
+    } 
+    else {
+      length = elem.getBoundingClientRect().top - childs[0].getBoundingClientRect().top;
+    }
+    
+    return {[settings.axis]: settings.allowedOffsets[`${settings.axis}Max`] - length};
+  }
 
   return {
     enable,
@@ -391,6 +406,7 @@ $.fn.tabsMain = function (options) {
     unSubscribe,
     setItemsPerSlide,
     getBoundInWrapper,
+    getTransformToElement,
 
     getChilds: () => childs,
     getSettings: () => settings,

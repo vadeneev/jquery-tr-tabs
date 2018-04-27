@@ -48,7 +48,7 @@ $.fn.tabsMainAnimate = function (config) {
    * @public
    */
   function slideToMin() {
-    let lastIndex = 0;
+    let foundIndex = 0;
     update();
 
     for (let index = 0; index < slideCount; index++) {
@@ -57,9 +57,12 @@ $.fn.tabsMainAnimate = function (config) {
       const visiblePosition = settings.tabsCore.getBoundInWrapper(elem);
 
       if ( visiblePosition >= 0) { break; }
-      lastIndex = index;      
+      foundIndex = startItem; 
     }
-    moveToSlide(lastIndex);
+
+    let point = { [axis]:  settings.tabsCore.getTransformToElement($tabsItems[foundIndex])[axis] };
+
+    startSlideToPoint(point);
   }
   
   /**
@@ -77,7 +80,6 @@ $.fn.tabsMainAnimate = function (config) {
       const rightBorder = settings.tabsCore.getBoundInWrapper(elem) + elem.outerWidth();      
 
       if ( rightBorder > width) {
-        //FIXME: CHECK IF ALL OK
         const point = { [axis]: settings.tabsCore.getTransform()[axis] - rightBorder + width};
         startSlideToPoint(point);
         break;
@@ -89,20 +91,15 @@ $.fn.tabsMainAnimate = function (config) {
     update();
     
     if (itemsPerSlide === 1) {      
-      return moveToElement($($tabsItems[slideNumber]));      
+      return moveToElement($tabsItems[slideNumber]);
     }
     
-    let firstIndex = itemsPerSlide * slideNumber;     
-    let elem = $($tabsItems[firstIndex]);    
-    //FIXME: ERROR
-    let newPoint = { [axis]: boundaryBox[`${axis}Max`] - settings.tabsCore.getBoundInWrapper(elem) };         
-
-    return startSlideToPoint(newPoint);
+    let firstIndex = itemsPerSlide * slideNumber;        
+    return moveToElement($tabsItems[firstIndex]);    
   }
 
   function moveToElement(element) {
-    //FIXME: ERROR
-    let newPoint = { [axis]: settings.tabsCore.getBoundInWrapper(element) };
+    let newPoint = { [axis]: settings.tabsCore.getTransformToElement(element)[axis] };
     
     return startSlideToPoint(newPoint);
   }
@@ -114,8 +111,8 @@ $.fn.tabsMainAnimate = function (config) {
       return moveToElement($element);
     }
     
-    const width = settings.tabsCore.getElement().parent().width();     
-
+    const width = settings.tabsCore.getElement().parent().width();
+//FIXME: need to consider right move - not left
     if (minBound >= width) {
       let newPoint = { [axis]: settings.tabsCore.getTransform()[axis] - settings.tabsCore.getBoundInWrapper($element) - getMeasure($element)};
       return startSlideToPoint(newPoint);
