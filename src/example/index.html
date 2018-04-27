@@ -7,6 +7,7 @@
     <title>Document</title>
     <link rel="stylesheet" href="./main.css">
     <link rel="stylesheet" href="./dots-adapted.css">
+    <link rel="stylesheet" href="./vertical-tabs.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css">
     <script src="https://code.jquery.com/jquery-1.12.4.min.js" defer></script>
     <script src="../tabsMain.js" defer></script>
@@ -79,6 +80,31 @@
                   btn1.on('click', moveTabs.slideToMin);
                   btn2.on('click', moveTabs.slideToMax);
                 
+            </pre>
+        </details>
+    </section>
+    <section class="js-simple-vertical-case">
+        <h2>Simple Vertical + buttons</h2>
+        <label>
+            <span>Items per slide, here is good 1, 2 (1 is default):</span>
+            <input type="number" name="itemsPS" id="itemsPerSlide" value='1'>
+        </label>
+        <div class="vertical-case__wrapper">
+            <span class="btn btn-top">^</span>
+            <div class="vertical-case__container">
+                <ul class="vertical-tabs">
+                    <li class="child-item"><a href="#0">0</a></li>
+                    <li class="child-item"><a href="#1">1</a></li>
+                    <li class="child-item"><a href="#2">2</a></li>
+                    <li class="child-item"><a href="#3">3</a></li>
+                    <li class="child-item"><a href="#4">4</a></li>
+                    <li class="child-item"><a href="#5">5</a></li>
+                </ul>
+            </div>
+            <span class="btn btn-bottom">_</span>
+        </div>
+        <details>
+            <pre>
             </pre>
         </details>
     </section>
