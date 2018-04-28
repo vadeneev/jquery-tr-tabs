@@ -1,0 +1,12 @@
+.vertical-case__container {
+    width: 200px;
+    height: 400px;
+    overflow: hidden;
+}
+
+.vertical-tabs .child-item {
+    width: 200px;
+    height: 200px;
+    background: #b1b1b1;
+    border: 1px solid #666;
+}

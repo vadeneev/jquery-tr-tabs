@@ -15,13 +15,16 @@ $.fn.tabsMainAnimate = function (config) {
   init();
 
   function update() {
+    let coreSettings = settings.tabsCore.getSettings();
+
+    axis = coreSettings.axis;
     boundaryBox = settings.tabsCore.getOffsets();
-    itemsPerSlide = settings.tabsCore.getSettings().itemsPerSlide;
-    slideCount = settings.tabsCore.getSettings().slideCount;
+    itemsPerSlide = coreSettings.itemsPerSlide;
+    slideCount = coreSettings.slideCount;
     $tabsItems = settings.tabsCore.getChilds();
   }
 
-  function getMeasure(element) {
+  function getOuterMeasure(element) {
     if (element instanceof jQuery) {
       if (axis === 'x') {
         return element.outerWidth();
@@ -34,6 +37,19 @@ $.fn.tabsMainAnimate = function (config) {
         return element.offsetWidth;
       }
       return element.offsetHeight;
+    }
+  }
+
+  function getMeasure(element) {
+    if (element instanceof jQuery) {
+      element = element.get(0);
+    }
+
+    if (element instanceof Element) {
+      if (axis === 'x') {
+        return element.clientWidth;
+      }
+      return element.clientHeight;
     }
   }
 
@@ -71,16 +87,17 @@ $.fn.tabsMainAnimate = function (config) {
    */
   function slideToMax() {
     update();
-    const width = settings.tabsCore.getElement().parent().width();    
+    const measure = getMeasure(settings.tabsCore.getElement().parent());
+    
 
     for (let index = 0; index < slideCount; index++) {
       const startItem = itemsPerSlide * index;
       const endItem = startItem + itemsPerSlide - 1;
       const elem = $tabsItems[endItem];
-      const rightBorder = settings.tabsCore.getBoundInWrapper(elem) + elem.offsetWidth;
+      const rightBorder = settings.tabsCore.getBoundInWrapper(elem) + getOuterMeasure(elem);
 
-      if ( rightBorder > width) {
-        const point = { [axis]: settings.tabsCore.getTransform()[axis] - rightBorder + width};
+      if ( rightBorder > measure) {
+        const point = { [axis]: settings.tabsCore.getTransform()[axis] - rightBorder + measure};
         startSlideToPoint(point);
         break;
       }

@@ -1,6 +1,7 @@
 //$.fn.reverse = [].reverse;
 $(
   function () {
+    verticalTabs();
     oversizedTabs();
     firstTabs();
     secondTabs();
@@ -37,6 +38,59 @@ function secondTabs() {
 
 }
 
+function verticalTabs() {
+  let $tabs = $('.js-simple-vertical-case .vertical-tabs');  
+  let tabsObject = $tabs.tabsMain({
+    axis: 'y',
+    childSelector: '> li'
+  });
+
+  let btn1 = $('.js-simple-vertical-case .btn-top');
+  let btn2 = $('.js-simple-vertical-case .btn-bottom');
+
+  let btns = $tabs.tabsMainSlideBtns({
+    btns: [
+      {
+        $element: btn1,
+        axis: 'y',
+        targetOffset: 'yMax'
+      },
+      {
+        $element: btn2,
+        axis: 'y',
+        targetOffset: 'yMin'
+      }
+    ]
+  });
+
+  tabsObject.subscribe({
+    event: 'update',
+    callback: btns.update
+  });
+
+  //end left-right btn
+
+  // create 'animation of move'
+  let moveTabs = $tabs.tabsMainAnimate({
+    tabsCore: tabsObject,    
+  });
+  
+  tabsObject.subscribe({
+    event: 'stop',
+    callback: moveTabs.continueSliding
+  });
+
+  btn1.on('click', moveTabs.slideToMin);
+  btn2.on('click', moveTabs.slideToMax);
+
+  
+  document.getElementById('verticalIPS').addEventListener('blur', handleChangeItemsSlide);
+
+  function handleChangeItemsSlide(event) {    
+    tabsObject.setItemsPerSlide(Number.parseInt(event.target.value) || 1);
+  }
+}
+
 function firstTabs() {
   let $tabs = $('.js-first-case .tabs_1');  
   let tabsObject = $tabs.tabsMain({
@@ -71,7 +125,12 @@ function firstTabs() {
   // create 'animation of move'
   let moveTabs = $tabs.tabsMainAnimate({
     tabsCore: tabsObject,    
-  });  
+  }); 
+  
+  tabsObject.subscribe({
+    event: 'stop',
+    callback: moveTabs.continueSliding
+  });
 
   btn1.on('click', moveTabs.slideToMin);
   btn2.on('click', moveTabs.slideToMax);

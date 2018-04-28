@@ -99,8 +99,8 @@ $.fn.tabsMain = function (options) {
       return;
     }
     considerItemsPerSlide();
-    settings.allowedOffsets.xMin = -($that.parent()[0].scrollWidth - $that.parent().width());
-    settings.allowedOffsets.yMin = $that.parent()[0].scrollHeight;
+    settings.allowedOffsets.xMin = $that.parent().width() - $that.parent()[0].scrollWidth;
+    settings.allowedOffsets.yMin = $that.parent().height() - $that.parent()[0].scrollHeight;
   }
 
   function fitItemsToExternal() {
@@ -129,7 +129,7 @@ $.fn.tabsMain = function (options) {
     }
   }
 
-  function considerItemsPerSlide() {    
+  function considerItemsPerSlide() {
     if (!settings.isIPSFitsScreen) { return; }
     if ($that.parent().parent().width() === previousContainerSize) { return; }    
 

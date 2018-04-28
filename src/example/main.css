@@ -89,6 +89,7 @@ details {
 }
 
 .btn {
+    display: block;
     width: 60px;
     background-color: #fff;
     height: 60px;
