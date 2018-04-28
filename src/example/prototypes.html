@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Prototypes</title>
+    <link rel="stylesheet" href="./style/y-dots.css">
+    <link rel="stylesheet" href="./style/prototypes.css">
+    <link rel="stylesheet" href="./style/dots.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css">
+
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" defer></script>
+    <script src="./script/prototypes.js" defer></script>
+    <script src="../tabsMain.js" defer></script>
+    <script src="../tabsMain-dotsNav.js" defer></script>
+    <script src="../tabsMain-slideButtons.js" defer></script>
+    <script src="../tabsMain-animate.js" defer></script>       
+</head>
+<body>
+    <main>
+        <section class="y-dots">         
+            <div>
+                <div class="btn btn-top hidden-mobile">top</div>
+                <div class="y-dots__container">                
+                    <ul class="y-dots__tabs js-tabs">
+                        <li><a href="#1" class="y-dots__item">item 1</a></li>
+                        <li><a href="#2" class="y-dots__item">item 2</a></li>
+                        <li><a href="#3" class="y-dots__item">item 3</a></li>
+                        <li><a href="#4" class="y-dots__item">item 4</a></li>
+                        <li><a href="#5" class="y-dots__item">item 5</a></li>
+                        <li><a href="#6" class="y-dots__item">item 6</a></li>
+                    </ul>                
+                </div>
+                <div class="btn btn-bottom hidden-mobile">down</div>
+                <div class="dots-container hidden-desktop">
+                    <div class="js-adapt-dots"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

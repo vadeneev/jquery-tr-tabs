@@ -1,45 +1,4 @@
-.dot-nav.dot-nav--selected::after {
-    background: rgb(35, 138, 25);
-}
 
-.dot-nav.dot-nav--smallest::after {
-    width: 7px;
-    height: 7px;
-    transition: all 0.1s;
-}
-
-.dot-nav.dot-nav--small::after {
-
-    width: 10px;
-    height: 10px;
-    transition: all 0.1s;
-}
-
-.dot-nav {
-    width: 20px;
-    height: 20px;
-    position: relative;
-    display: inline-block;
-    padding: 5px;
-    cursor: pointer;
-}
-
-.dot-nav:after {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: auto;
-    display: block;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: #333;
-
-    transition: all 0.1s;
-}
 details {
     width: 100%;
     padding: 20px;

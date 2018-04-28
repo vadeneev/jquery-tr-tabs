@@ -1,0 +1,32 @@
+
+.y-dots {
+    display: flex;
+    justify-content: center;
+}
+
+.y-dots__container {
+    height: 200px;
+    width: 50px;
+    overflow: hidden;
+}
+
+.y-dots__item {
+    display: block;
+    height: 50px;
+    width: 50px;
+    border: 1px solid #666;
+    background: #b1b1b1;
+}
+
+@media screen and (max-width: 960px) {
+    .y-dots__container {
+        display: flex;
+        height: 200px;
+        width: 200px;
+    }
+
+    .y-dots__item {        
+        height: 200px;
+        width: 200px;        
+    }
+}

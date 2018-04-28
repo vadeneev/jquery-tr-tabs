@@ -200,15 +200,15 @@ function dotsAdaptedCase() {
     tabsCore: tabsObject,
   });
 
+  tabsObject.subscribe({
+    event: 'stop',
+    callback: moveTabs.continueSliding
+  });
+
   let dots = $('.js-adapt-dots').tabsMainDots({
     triggerPoint: {x: '50%', y: 0},
     tabsMoverCtrl: moveTabs,
     tabsCore: tabsObject
-  });
-
-  tabsObject.subscribe({
-    event: 'stop',
-    callback: moveTabs.continueSliding
   });
 
   tabsObject.subscribe({
