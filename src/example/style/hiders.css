@@ -1,0 +1,19 @@
+.invisible {
+    visibility: hidden;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@media screen and (max-width: 960px) {
+    .hidden-desktop {
+        display: none !important;
+    }
+}
+
+@media screen and (max-width: 960px) {
+    .hidden-mobile {
+        display: none !important;
+    }
+}
