@@ -98,7 +98,7 @@ $.fn.tabsMain = function (options) {
     if (!settings.useOverflowOffset) {
       return;
     }
-    considerItemsPerSlide();
+    considerItemsPerSlide();    
     settings.allowedOffsets.xMin = $that.parent().width() - $that.parent()[0].scrollWidth;
     settings.allowedOffsets.yMin = $that.parent().height() - $that.parent()[0].scrollHeight;
   }
@@ -327,7 +327,9 @@ $.fn.tabsMain = function (options) {
 
   function changeAxis(axis) {
     settings.axis = axis;
-    throw 'Not implemented';
+    calculateOffset();
+    setTransform({x:0, y:0});
+    setTransformBounds();
   }
 
   /**

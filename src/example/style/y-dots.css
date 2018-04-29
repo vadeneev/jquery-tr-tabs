@@ -24,6 +24,9 @@
         height: 200px;
         width: 200px;
     }
+    .y-dots__tabs {
+        display: flex;
+    }
 
     .y-dots__item {        
         height: 200px;
