@@ -1,0 +1,36 @@
+
+.x-responsive {
+    display: flex;
+    justify-content: center;
+    flex-flow: column;
+    align-items: center;
+    width: 100%;
+}
+
+.x-responsive__tabs {
+    display: flex;
+}
+
+.x-responsive__wrapper {
+    display: flex;    
+    width: 836px;
+}
+.x-responsive__container {
+    height: 150px;    
+    overflow: hidden;
+}
+
+.x-responsive__item {
+    display: block;
+    height: 150px;
+    width: 150px;
+    border: 1px solid #666;
+    background: #b1b1b1;
+}
+
+
+@media screen and (max-width: 960px) {
+    .x-responsive__wrapper {
+        width: 100%;
+    }
+}

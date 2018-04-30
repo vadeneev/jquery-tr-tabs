@@ -76,8 +76,8 @@ $.fn.tabsMainSlideBtns = function (config) {
     },
   }
 
-  if (!$that.data('tabsMainSlideBtns')) {
-    $that.data('tabsMainSlideBtns', $self);
+  if (!this.data('tabsMainSlideBtns')) {
+    this.data('tabsMainSlideBtns', $self);
   }
 
   return $self;

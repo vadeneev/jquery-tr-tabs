@@ -45,6 +45,9 @@ $.fn.tabsMain = function (options) {
   };
 
   if ($that.data('tabsMain')) {
+    // if (options && options instanceof Object) {
+
+    // }
     return;
   }
 
