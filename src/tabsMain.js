@@ -17,6 +17,7 @@ $.fn.tabsMain = function (options) {
   'use strict';
   const $that = this;
   const COMPENSATION_ELEMENT = 'tabs--compensation-item';
+  let $self;
   let $compensationItems;
   let vectorTransform = {x: 0, y: 0};
   let vectorPrev = {x: 0, y: 0};
@@ -42,6 +43,10 @@ $.fn.tabsMain = function (options) {
     stop: [],
     update: [],
   };
+
+  if ($that.data('tabsMain')) {
+    return;
+  }
 
   init(options);
 
@@ -417,7 +422,7 @@ $.fn.tabsMain = function (options) {
     return { x: result[5], y: result[6] };
   }
 
-  return {
+  $self = {
     enable,
     disable,
     changeAxis,
@@ -435,4 +440,10 @@ $.fn.tabsMain = function (options) {
     getTransform: () => vectorTransform,
     getOffsets: () => settings.allowedOffsets,
   };
+
+  if (!$that.data('tabsMain')) {
+    $that.data('tabsMain', $self);
+  }
+
+  return $self;
 };

@@ -3,6 +3,7 @@ $.fn.tabsMainAnimate = function (config) {
     tabsCore: null,    
   };
 
+  let $self;
   let $tabsItems = [];
   let axis = 'x';  
   let prevTransform = {x: 0, y: 0};
@@ -176,7 +177,7 @@ $.fn.tabsMainAnimate = function (config) {
     slideToMax();
   }
 
-  return {
+  $self = {
     slideToMin,
     slideToMax,
     slideToPoint,
@@ -185,5 +186,11 @@ $.fn.tabsMainAnimate = function (config) {
     moveToSlide,
     moveToElement,
   };
+
+  if (!this.data('tabsMainAnimate')) {
+    this.data('tabsMainAnimate', $self);
+  }
+
+  return $self;
 
 };

@@ -1,3 +1,9 @@
+
+details {
+    width: 100%;
+    padding: 20px;
+}
+
 .js-adapt-dots {
     display: flex;
     justify-content: center;

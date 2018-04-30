@@ -18,8 +18,6 @@ $(() => {
 
 
 function yDots() {
-
-  //FIXME: dots error
   let $tabs = $('.y-dots .js-tabs');  
   let tabsObject = $tabs.tabsMain({
     axis: 'y',

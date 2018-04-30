@@ -8,6 +8,7 @@ $.fn.tabsMainDots = function (options) {
   const CORE_CLASS_SELECTED = 'dot-nav--selected';
   const CORE_CLASS_SMALL = 'dot-nav--small';
   const CORE_CLASS_SMALLEST = 'dot-nav--smallest';
+  let $self;
 
   let settings = {
     triggerPoint: {x: '50%', y: '50%'},    
@@ -188,7 +189,7 @@ $.fn.tabsMainDots = function (options) {
     subscribers.remove(callback);
   }
 
-  return {    
+  $self = {    
     trackTabs,
     updateDots,
     disable,
@@ -196,5 +197,11 @@ $.fn.tabsMainDots = function (options) {
     subscribe,
     unSubscribe,
     reManageDots,
-  };
+  }
+
+  if (!this.data('tabsMainDots')) {
+    this.data('tabsMainDots', $self);
+  }
+
+  return $self;
 };

@@ -11,6 +11,7 @@
 
 $.fn.tabsMainSlideBtns = function (config) {
   const $that = this;
+  let $self;
   let settings = {
     accuracy: 5,
     btns: [],
@@ -62,7 +63,7 @@ $.fn.tabsMainSlideBtns = function (config) {
     });
   }
 
-  return {
+  $self = {
     update,
     hideAllBtns,
     enable: () => {
@@ -73,5 +74,12 @@ $.fn.tabsMainSlideBtns = function (config) {
       settings.isEnabled = false;
       hideAllBtns();
     },
-  };
+  }
+
+  if (!$that.data('tabsMainSlideBtns')) {
+    $that.data('tabsMainSlideBtns', $self);
+  }
+
+  return $self;
+
 };
