@@ -88,7 +88,7 @@ function yDots() {
     initBtns = () => btns.enable;
   }
 
-  function initDots() {
+  function initDots() {    
     dots = $('.js-adapt-dots').tabsMainDots({
       triggerPoint: {x: '50%', y: 0},
       tabsMoverCtrl: moveTabs,

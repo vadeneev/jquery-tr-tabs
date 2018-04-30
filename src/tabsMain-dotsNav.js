@@ -43,7 +43,7 @@ $.fn.tabsMainDots = function (options) {
       return; 
     }
 
-    let parentWidthPercent = settings.tabsCore.getElement().outerWidth() / 100;
+    let parentWidthPercent = settings.tabsCore.getElement().parent().outerWidth() / 100;
     let percent = parseInt(settings.triggerPoint[axis]);
 
     triggerPoint[axis] = percent * parentWidthPercent;
