@@ -87,7 +87,7 @@ function verticalTabs() {
   document.getElementById('verticalIPS').addEventListener('blur', handleChangeItemsSlide);
 
   function handleChangeItemsSlide(event) {    
-    tabsObject.setItemsPerSlide(Number.parseInt(event.target.value) || 1);
+    tabsObject.settings = { itemsPerSlide : Number.parseInt(event.target.value) || 1};
   }
 }
 
@@ -138,8 +138,8 @@ function firstTabs() {
   //
   document.getElementById('itemsPerSlide').addEventListener('blur', handleChangeItemsSlide);
 
-  function handleChangeItemsSlide(event) {
-    tabsObject.setItemsPerSlide(Number.parseInt(event.target.value) || 1);
+  function handleChangeItemsSlide(event) {    
+    tabsObject.settings = { itemsPerSlide : Number.parseInt(event.target.value) || 1};
   }
 }
 
@@ -192,7 +192,7 @@ function dotsAdaptedCase() {
   let $tabs = $('.js-dots-adapt-case .tabs_1');
   let $childItems = $tabs.find('> li');
   let tabsObject = $tabs.tabsMain({
-    isIPSFitsScreen: true,    
+    itemsInSlideFitsWrapper: true,    
     childSelector: '> li'    
   });
     
@@ -221,8 +221,8 @@ function dotsAdaptedCase() {
     callback: dots.reManageDots
   });
 
-  infoSlides.attr('items', tabsObject.getSettings().itemsPerSlide);
+  infoSlides.attr('items', tabsObject.settings.itemsPerSlide);
   $(window).on('resize', () => {
-    infoSlides.attr('items', tabsObject.getSettings().itemsPerSlide);
+    infoSlides.attr('items', tabsObject.settings.itemsPerSlide);
   });
 }

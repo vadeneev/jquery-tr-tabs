@@ -18,6 +18,16 @@ $.fn.tabsMainSlideBtns = function (config) {
     isEnabled: true,
     toggleClass: 'invisible'
   };
+
+  if ($that.data('tabsMainSlideBtns')) {
+    let obj = $that.data('tabsMainSlideBtns');
+    if (options && options instanceof Object) {
+      obj.init(options);
+    }
+
+    return obj;     
+  }
+
   init(config);
 
   function init(config) {
@@ -66,6 +76,7 @@ $.fn.tabsMainSlideBtns = function (config) {
   $self = {
     update,
     hideAllBtns,
+
     enable: () => {
       settings.isEnabled = true;
       update();
@@ -74,6 +85,7 @@ $.fn.tabsMainSlideBtns = function (config) {
       settings.isEnabled = false;
       hideAllBtns();
     },
+    
   }
 
   if (!this.data('tabsMainSlideBtns')) {

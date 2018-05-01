@@ -47,13 +47,13 @@ function yDots() {
   $(window).on('mobileResolution', mobile);
 
   function desktop() {    
-    tabsObject.changeAxis('y');
+    tabsObject.settings = { axis: 'y'};
 
     initBtns();
   }
 
   function mobile() {
-    tabsObject.changeAxis('x');
+    tabsObject.settings = { axis: 'x'};
 
     initDots();
   }
@@ -137,18 +137,16 @@ function xDots() {
   $(window).on('mobileResolution', mobile);
 
   function desktop() {    
-    
+    tabsObject.settings = { 
+      itemsInSlideFitsWrapper: false, 
+      itemsPerSlide: 1
+    };
 
     initBtns();
   }
 
   function mobile() {
-    //TODO: continue development, add full update settings
-    // isIPSFitsScreen: true,    
-    // let tabsObject = $tabs.tabsMain({
-    //   isIPSFitsScreen: true,    
-    //   childSelector: '> li'    
-    // });
+    tabsObject.settings = { itemsInSlideFitsWrapper: true};
 
     initDots();
   }

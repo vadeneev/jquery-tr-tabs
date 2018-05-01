@@ -32,7 +32,7 @@ $.fn.tabsMainDots = function (options) {
   function init() {
     settings = {...settings, ...options};
     $that.on('click', handleDotCLick);
-    axis = settings.tabsCore.getSettings().axis;    
+    axis = settings.tabsCore.settings.axis;    
     reManageDots();
     updateDots();
     init = $.noop;
@@ -44,7 +44,7 @@ $.fn.tabsMainDots = function (options) {
       return; 
     }
 
-    let parentWidthPercent = settings.tabsCore.getElement().parent().outerWidth() / 100;
+    let parentWidthPercent = settings.tabsCore.getParent().outerWidth() / 100;
     let percent = parseInt(settings.triggerPoint[axis]);
 
     triggerPoint[axis] = percent * parentWidthPercent;
@@ -52,8 +52,8 @@ $.fn.tabsMainDots = function (options) {
 
   function reManageDots() {
     $tabsItems = settings.tabsCore.getChilds();
-    itemsPerSlide = settings.tabsCore.getSettings().itemsPerSlide;
-    let nextSlideCount = settings.tabsCore.getSettings().slideCount;
+    itemsPerSlide = settings.tabsCore.settings.itemsPerSlide;
+    let nextSlideCount = settings.tabsCore.settings.slideCount;
     
     updateTriggerPoint();
 
@@ -153,7 +153,7 @@ $.fn.tabsMainDots = function (options) {
     for (let index = 0; index < slideCount; index++) {
       let startItem = itemsPerSlide * index;      
       let elem = $tabsItems[startItem];
-      let visiblePosition = settings.tabsCore.getBoundInWrapper(elem);
+      let visiblePosition = settings.tabsCore.calcBoundInWrapper(elem);
 
       if ( visiblePosition < triggerPoint[axis]) {
         curSelectedIndex = index;

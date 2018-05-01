@@ -13,13 +13,17 @@ $.fn.tabsMainAnimate = function (config) {
   let boundaryBox;  
   let slideCount;
 
+  if (this.data('tabsMainAnimate')) {
+    return this.data('tabsMainAnimate');    
+  }
+
   init();
 
   function update() {
-    let coreSettings = settings.tabsCore.getSettings();
+    let coreSettings = settings.tabsCore.settings;
 
     axis = coreSettings.axis;
-    boundaryBox = settings.tabsCore.getOffsets();
+    boundaryBox = settings.tabsCore.settings.allowedOffsets;
     itemsPerSlide = coreSettings.itemsPerSlide;
     slideCount = coreSettings.slideCount;
     $tabsItems = settings.tabsCore.getChilds();
@@ -56,7 +60,7 @@ $.fn.tabsMainAnimate = function (config) {
 
   function init() {
     settings = {...settings, ...config};
-    axis = settings.tabsCore.getSettings().axis;    
+    axis = settings.tabsCore.settings.axis;    
     update();
   }
 
@@ -71,13 +75,13 @@ $.fn.tabsMainAnimate = function (config) {
     for (let index = 0; index < slideCount; index++) {
       const startItem = itemsPerSlide * index;      
       const elem = $tabsItems[startItem];            
-      const visiblePosition = settings.tabsCore.getBoundInWrapper(elem);
+      const visiblePosition = settings.tabsCore.calcBoundInWrapper(elem);
 
       if ( visiblePosition >= 0) { break; }
       foundIndex = startItem; 
     }
 
-    let point = { [axis]:  settings.tabsCore.getTransformToElement($tabsItems[foundIndex])[axis] };
+    let point = { [axis]:  settings.tabsCore.calcTransformToElement($tabsItems[foundIndex])[axis] };
 
     startSlideToPoint(point);
   }
@@ -88,17 +92,17 @@ $.fn.tabsMainAnimate = function (config) {
    */
   function slideToMax() {
     update();
-    const measure = getMeasure(settings.tabsCore.getElement().parent());
+    const measure = getMeasure(settings.tabsCore.getParent());
     
 
     for (let index = 0; index < slideCount; index++) {
       const startItem = itemsPerSlide * index;
       const endItem = startItem + itemsPerSlide - 1;
       const elem = $tabsItems[endItem];
-      const rightBorder = settings.tabsCore.getBoundInWrapper(elem) + getOuterMeasure(elem);
+      const rightBorder = settings.tabsCore.calcBoundInWrapper(elem) + getOuterMeasure(elem);
 
       if ( rightBorder > measure) {
-        const point = { [axis]: settings.tabsCore.getTransform()[axis] - rightBorder + measure};
+        const point = { [axis]: settings.tabsCore.transform[axis] - rightBorder + measure};
         startSlideToPoint(point);
         break;
       }
@@ -117,22 +121,22 @@ $.fn.tabsMainAnimate = function (config) {
   }
 
   function moveToElement(element) {
-    let newPoint = { [axis]: settings.tabsCore.getTransformToElement(element)[axis] };
+    let newPoint = { [axis]: settings.tabsCore.calcTransformToElement(element)[axis] };
     
     return startSlideToPoint(newPoint);
   }
 
   function slideToElement($element) {
-    let minBound = settings.tabsCore.getBoundInWrapper($element);
+    let minBound = settings.tabsCore.calcBoundInWrapper($element);
 
     if (minBound < 0) {
       return moveToElement($element);
     }
     
-    const width = settings.tabsCore.getElement().parent().width();
+    const width = settings.tabsCore.getParent().width();
     if (minBound >= width) {
-      const rightBorder = settings.tabsCore.getBoundInWrapper($element) + $element.outerWidth();
-      const point = { [axis]: settings.tabsCore.getTransform()[axis] - rightBorder + width};
+      const rightBorder = settings.tabsCore.calcBoundInWrapper($element) + $element.outerWidth();
+      const point = { [axis]: settings.tabsCore.transform[axis] - rightBorder + width};
       return startSlideToPoint(point);
     }
   }
@@ -146,14 +150,14 @@ $.fn.tabsMainAnimate = function (config) {
   function startSlideToPoint(point) {
     rejectAll();
     deferred = $.Deferred();
-    prevTransform = {...settings.tabsCore.getTransform()};
+    prevTransform = {...settings.tabsCore.transform};
     point = {...prevTransform, ...point};
     slideToPoint(point, deferred);
     return deferred;
   }
 
   function slideToPoint(point, promisDelegate) {
-    let curTransform = settings.tabsCore.getTransform();    
+    let curTransform = settings.tabsCore.transform;    
     let $that = settings.tabsCore.getElement();
 
     $that.css({ 'transition': 'transform 0.2s ease-in-out' });
@@ -162,7 +166,7 @@ $.fn.tabsMainAnimate = function (config) {
       $that.css({ 'transition': '' });
       $that.off('transitionend');
     });
-    settings.tabsCore.setTransform({...curTransform, ...point});
+    settings.tabsCore.transform = {...curTransform, ...point};
   }
 
   function continueSliding(event) {
