@@ -1,4 +1,5 @@
 $.fn.tabsMainAnimate = function (config) {
+  'use strict';
   let settings = {
     tabsCore: null,    
   };
@@ -31,10 +32,7 @@ $.fn.tabsMainAnimate = function (config) {
 
   function getOuterMeasure(element) {
     if (element instanceof jQuery) {
-      if (axis === 'x') {
-        return element.outerWidth();
-      }
-      return element.outerHeight();
+      element = element[0];
     }
 
     if (element instanceof Element) {
@@ -47,7 +45,7 @@ $.fn.tabsMainAnimate = function (config) {
 
   function getMeasure(element) {
     if (element instanceof jQuery) {
-      element = element.get(0);
+      element = element[0];
     }
 
     if (element instanceof Element) {

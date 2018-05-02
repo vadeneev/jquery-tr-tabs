@@ -2,6 +2,7 @@
  * @description adds dots insta like style
  */
 $.fn.tabsMainDots = function (options) {
+  'use strict';
   const $that = this;
 
   const CORE_CLASS = 'dot-nav';

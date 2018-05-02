@@ -17,17 +17,27 @@ $.fn.tabsMain = function (options) {
   'use strict';
   const $that = this;
   const COMPENSATION_ELEMENT = 'tabs--compensation-item';
+  const zeroVector = {x:0, y:0};
+
   let $self;
   let $compensationItems;  
-  let vectorTransform = {x: 0, y: 0};
-  let vectorPrev = {x: 0, y: 0};
+  let vectorTransform = zeroVector;
+  let moveAmmount = zeroVector;
+  let vectorPrev = zeroVector;
   let touchIdentifier = 0;
   let pathAbs = 0;
-  let moveAmmount = {x: 0, y: 0};
   let eventTarget;
-  let childs;
+  let children;
   let previousContainerSize;
   let $parentElement;
+
+  let subscribers = {
+    start: [],
+    drag: [],
+    stop: [],
+    update: [],
+  }
+
   let settings = {
     childSelector: '> li',
     axis: 'x',
@@ -38,10 +48,6 @@ $.fn.tabsMain = function (options) {
     itemsInSlideFitsWrapper: false,
     slideCount: 1,
     useOverflowOffset: true, //todo : create variety    
-    start: [],
-    drag: [],
-    stop: [],
-    update: [],
   };
 
   if ($that.data('tabsMain')) {
@@ -66,8 +72,8 @@ $.fn.tabsMain = function (options) {
 
   function initValues(options) {
     settings = {...settings, ...options};
-    childs = $that.find(`${settings.childSelector}`);
-    settings.slideCount = childs.length;
+    children = $that.find(`${settings.childSelector}`);
+    settings.slideCount = children.length;
     $parentElement = $that.parent();
   }
 
@@ -97,7 +103,7 @@ $.fn.tabsMain = function (options) {
     considerItemsPerSlide();
     calculateOffset();
     setTransformBounds();    
-    invokeCallback(settings.update);
+    invokeCallback(subscribers.update);
   }
 
   /**
@@ -114,22 +120,24 @@ $.fn.tabsMain = function (options) {
   }
 
   function fitItemsToExternal() {
-    let currentWidth = $parentElement.parent().width();
-    let clearChilds = childs.not(`.${COMPENSATION_ELEMENT}`);
-    previousContainerSize = currentWidth;
+    let measure = settings.axis === 'x' ? 'width' : 'height';
 
-    let summ = clearChilds[0].offsetWidth;
+    let currentMeasure = getMeasure($parentElement.parent());
+    let clearChilds = children.not(`.${COMPENSATION_ELEMENT}`);
+    previousContainerSize = currentMeasure;
+
+    let summ = getOuterMeasure(clearChilds[0]);
 
     for (let index = 1; index < clearChilds.length; index++) {
       const element = clearChilds[index];
-      let nextSumm = summ + element.offsetWidth;
+      let nextSumm = summ + getOuterMeasure(element);
 
-      if (nextSumm > currentWidth) {        
+      if (nextSumm > currentMeasure) {        
         //todo: add animation for width change
         //use transition + transitionend event
         $parentElement.css({
-          'width': summ ,
-          'max-width': '100%'
+          [measure]: summ ,
+          [`max-${measure}`]: '100%'
         });
         
         return index;
@@ -140,54 +148,52 @@ $.fn.tabsMain = function (options) {
   }
 
   function considerItemsPerSlide() {
-    settings.slideCount = Math.ceil(childs.length / settings.itemsPerSlide);
+    //TODO: split and ref
+    let measure = settings.axis === 'x' ? 'width' : 'height';
+    settings.slideCount = Math.ceil(children.length / settings.itemsPerSlide);
 
-    if (!settings.itemsInSlideFitsWrapper) { 
+    if (!settings.itemsInSlideFitsWrapper) {
+      children.filter(`.${COMPENSATION_ELEMENT}`).remove();
       $parentElement.css({
-        'width': '' ,
-        'max-width': ''
+        [measure]: '' ,
+        [`max-${measure}`]: ''
       });
       return; 
     }
-    if ($parentElement.parent().width() === previousContainerSize) { return; }    
+    if (getMeasure($parentElement.parent()) === previousContainerSize) { return; }    
 
     let nextIPSvalue = fitItemsToExternal();
     if (nextIPSvalue === settings.itemsPerSlide) { return; }
 
-    childs.filter(`.${COMPENSATION_ELEMENT}`).remove();
-    childs = childs.not(`.${COMPENSATION_ELEMENT}`);
+    children.filter(`.${COMPENSATION_ELEMENT}`).remove();
+    children = children.not(`.${COMPENSATION_ELEMENT}`);
 
     settings.itemsPerSlide = nextIPSvalue;
-    settings.slideCount = Math.ceil(childs.length / nextIPSvalue);
+    settings.slideCount = Math.ceil(children.length / nextIPSvalue);
 
-    let divide = childs.length / settings.itemsPerSlide;
-    let width = childs[childs.length - 1].offsetWidth;
-    let height = childs[childs.length - 1].offsetHeight;
+    let divide = children.length / settings.itemsPerSlide;
+    let width = children[children.length - 1].offsetWidth;
+    let height = children[children.length - 1].offsetHeight;
 
     if ( getDecimal(divide) > 0) {      
-      let extraItems = (Math.ceil(divide) * settings.itemsPerSlide) - childs.length;
+      let extraItems = (Math.ceil(divide) * settings.itemsPerSlide) - children.length;
       
       for (let index = 0; index < extraItems; index++) {
         let $element = $(`<li class=${COMPENSATION_ELEMENT}>`);
 
         $element.css({
-          'min-width': width,
+          'min-width': width,       
+          'min-height': height,
           'width': width,
           'height': height
         });
 
         $that.append($element);
-        childs = childs.add($element);
+        children = children.add($element);
       }
     }
-    invokeCallback(settings.update, 'dotsUpdate');
+    invokeCallback(subscribers.update, 'dotsUpdate');
   }
-
-  // start EVENTS
-  function preventAll() {
-    return false;
-  }
-
   //mouse event handlers
   function handleDown(event) {
     handleStart({x: event.pageX, y: event.pageY}, event.target);
@@ -233,12 +239,14 @@ $.fn.tabsMain = function (options) {
       vectorTransform,
       moveAmmount,
       pathAbs,
-      childs,
+      children,
       type
     };
 
+    let exportSettings = {...info, settings};
+
     callbackArr.forEach(callBack => {
-      callBack({...info, settings});
+      callBack(exportSettings);
     });
   }
 
@@ -252,7 +260,7 @@ $.fn.tabsMain = function (options) {
     pathAbs = 0;
 
     setVectorPrev(point);
-    invokeCallback(settings.start);
+    invokeCallback(subscribers.start);
   }
 
   /**
@@ -267,10 +275,10 @@ $.fn.tabsMain = function (options) {
     $that.off('touchmove', handleTouchMove);
     $that.off('touchend', handleStop);
     $that.off('mouseup mouseleave', handleStop);
-    //settings.stop && settings.stop({ ...vectorTransform, settings });
-    invokeCallback(settings.stop);
+    //subscribers.stop && subscribers.stop({ ...vectorTransform, settings });
+    invokeCallback(subscribers.stop);
     if (pathAbs > settings.tapPrecision) {
-      event.type.match('mouseup') && $that.one('click', preventAll);
+      event.type.match('mouseup') && $that.one('click', false);
       return false;
     }
     event.type.match('touch') && eventTarget[0].click();
@@ -283,7 +291,7 @@ $.fn.tabsMain = function (options) {
    * @param {object} vectorCur
    */
   function proceedMoveHandler(vectorCur) {
-    moveAmmount = {x: 0, y: 0};
+    moveAmmount = zeroVector;
     
     moveAmmount[settings.axis] = vectorCur[settings.axis] - vectorPrev[settings.axis];
     vectorTransform[settings.axis] += moveAmmount[settings.axis];
@@ -291,7 +299,7 @@ $.fn.tabsMain = function (options) {
 
     setVectorPrev(vectorCur);
     setTransformBounds();
-    invokeCallback(settings.drag);
+    invokeCallback(subscribers.drag);
   }
 
   // end EVENTS
@@ -321,7 +329,7 @@ $.fn.tabsMain = function (options) {
 
   function setXYtoMatrix() {
     $that.css({transform: `translate3d(${vectorTransform.x}px, ${vectorTransform.y}px, 0px)`});
-    invokeCallback(settings.update);
+    invokeCallback(subscribers.update);
   }
 
   // controls
@@ -338,15 +346,15 @@ $.fn.tabsMain = function (options) {
    * @public
    */
   function disable() {
-    setTransform({x: 0, y: 0});
-    invokeCallback(settings.update);
+    setTransform(zeroVector);
+    invokeCallback(subscribers.update);
     unSubscribeHandlers();
   }
 
   function changeAxis(axis) {
     settings.axis = axis;
     calculateOffset();
-    setTransform({x:0, y:0});
+    setTransform(zeroVector);
     setTransformBounds();
   }
 
@@ -361,33 +369,56 @@ $.fn.tabsMain = function (options) {
   }
 
   function subscribe({event = 'update', callback}) {
-    if (event in settings) {
-      settings[event].push(callback);
-      invokeCallback(settings[event]);
+    if (event in subscribers) {
+      subscribers[event].push(callback);
+      invokeCallback(subscribers[event]);
     }
   }
 
   function unSubscribe({event = 'update', callback}) {
-    if (event in settings) {
-      settings[event].remove(callback);
+    if (event in subscribers) {
+      subscribers[event].remove(callback);
     }
   }
 
-  function getDecimal(num) {
-    // may be replaced with combination of trunc, but with core-js for ie11+ support
-    var str = "" + num;
-    var zeroPos = str.indexOf(".");
-    if (zeroPos == -1) return 0;
-    str = str.slice(zeroPos);
-    return +str;
+  //move to helpers
+  function getDecimal(num) {    
+    return num % 1;
   }
 
   function convertDOMelement(element) {
     if (element instanceof jQuery) { 
-      return element.get(0); 
+      return element[0]; 
     }
     return element;
   }
+
+  function getOuterMeasure(element) {
+    if (element instanceof jQuery) {
+      element = element[0];
+    }
+
+    if (element instanceof Element) {
+      if (settings.axis === 'x') {
+        return element.offsetWidth;
+      }
+      return element.offsetHeight;
+    }
+  }
+
+  function getMeasure(element) {
+    if (element instanceof jQuery) {
+      element = element[0];
+    }
+
+    if (element instanceof Element) {
+      if (settings.axis === 'x') {
+        return element.clientWidth;
+      }
+      return element.clientHeight;
+    }
+  }
+  //move to helpers end
 
   function calcBoundInWrapper(element) {
     let elem = convertDOMelement(element);
@@ -403,10 +434,10 @@ $.fn.tabsMain = function (options) {
     let elem = convertDOMelement(element);
 
     if (settings.axis === 'x') {
-      length = elem.getBoundingClientRect().left - childs[0].getBoundingClientRect().left;
+      length = elem.getBoundingClientRect().left - children[0].getBoundingClientRect().left;
     } 
     else {
-      length = elem.getBoundingClientRect().top - childs[0].getBoundingClientRect().top;
+      length = elem.getBoundingClientRect().top - children[0].getBoundingClientRect().top;
     }
     
     return {[settings.axis]: settings.allowedOffsets[`${settings.axis}Max`] - length};
@@ -446,7 +477,7 @@ $.fn.tabsMain = function (options) {
     get transform() { return vectorTransform },
     set transform(value) { setTransform(value) },
 
-    getChilds: () => childs,
+    getChilds: () => children,
     getElement: () => $that,
     getParent: () => $parentElement,    
   };
