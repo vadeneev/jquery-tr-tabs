@@ -1,14 +1,14 @@
 $.fn.tabsMainAnimate = function (config) {
   'use strict';
   let settings = {
-    tabsCore: null,    
+    tabsCore: null,
+    accuracy: 10
   };
 
   let $self;
   let $tabsItems = [];
   let axis = 'x';  
   let prevTransform = {x: 0, y: 0};
-  let animationId = null;
   let deferred;  
   let itemsPerSlide = 1;
   let boundaryBox;  
@@ -75,7 +75,7 @@ $.fn.tabsMainAnimate = function (config) {
       const elem = $tabsItems[startItem];            
       const visiblePosition = settings.tabsCore.calcBoundInWrapper(elem);
 
-      if ( visiblePosition >= 0) { break; }
+      if ( visiblePosition > 0 - settings.accuracy) { break; }
       foundIndex = startItem; 
     }
 
@@ -91,20 +91,21 @@ $.fn.tabsMainAnimate = function (config) {
   function slideToMax() {
     update();
     const measure = getMeasure(settings.tabsCore.getParent());
+    let rightBorder = 0;
     
 
     for (let index = 0; index < slideCount; index++) {
       const startItem = itemsPerSlide * index;
       const endItem = startItem + itemsPerSlide - 1;
       const elem = $tabsItems[endItem];
-      const rightBorder = settings.tabsCore.calcBoundInWrapper(elem) + getOuterMeasure(elem);
+      rightBorder = settings.tabsCore.calcBoundInWrapper(elem) + getOuterMeasure(elem);
 
-      if ( rightBorder > measure) {
-        const point = { [axis]: settings.tabsCore.transform[axis] - rightBorder + measure};
-        startSlideToPoint(point);
+      if ( rightBorder > measure + settings.accuracy) {
         break;
       }
-    }        
+    }
+    const point = { [axis]: settings.tabsCore.transform[axis] - rightBorder + measure};
+    startSlideToPoint(point);
   }
 
   function moveToSlide(slideNumber) {
@@ -171,7 +172,6 @@ $.fn.tabsMainAnimate = function (config) {
     if (event.pathAbs < event.settings.tapPrecision) {
       return;
     }
-
     if (event.moveAmmount[axis] > 0) {
       slideToMin();
       return;

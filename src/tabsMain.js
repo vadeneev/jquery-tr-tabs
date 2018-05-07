@@ -61,11 +61,11 @@ $.fn.tabsMain = function (options) {
 
   init(options);
 
-  function init(options) {
+  function init(options = {}) {
     if (!$that.length) {
       return;
     }
-    options && initValues(options);
+    initValues(options);
     subscribeHandlers();
     calculateOffset();
   }
@@ -292,10 +292,11 @@ $.fn.tabsMain = function (options) {
    */
   function proceedMoveHandler(vectorCur) {
     moveAmmount = zeroVector;
-    
+
     moveAmmount[settings.axis] = vectorCur[settings.axis] - vectorPrev[settings.axis];
-    vectorTransform[settings.axis] += moveAmmount[settings.axis];
-    pathAbs += Math.abs(moveAmmount[settings.axis]);    
+    let newPoint = { [settings.axis]: vectorTransform[settings.axis] + moveAmmount[settings.axis] };
+    vectorTransform = {...vectorTransform, ...newPoint };
+    pathAbs += Math.abs(moveAmmount[settings.axis]);
 
     setVectorPrev(vectorCur);
     setTransformBounds();
@@ -309,15 +310,14 @@ $.fn.tabsMain = function (options) {
    */
   function setTransformBounds() {
     let isInScope = true;
-    
-      if (vectorTransform[settings.axis] < settings.allowedOffsets[`${settings.axis}Min`]) {
-        vectorTransform[settings.axis] = settings.allowedOffsets[`${settings.axis}Min`];
-        isInScope = false;
-      }
-      if (vectorTransform[settings.axis] > settings.allowedOffsets[`${settings.axis}Max`]) {
-        vectorTransform[settings.axis] = settings.allowedOffsets[`${settings.axis}Max`];
-        isInScope = false;
-      }
+    if (vectorTransform[settings.axis] < settings.allowedOffsets[`${settings.axis}Min`]) {
+      vectorTransform[settings.axis] = settings.allowedOffsets[`${settings.axis}Min`];
+      isInScope = false;
+    }
+    if (vectorTransform[settings.axis] > settings.allowedOffsets[`${settings.axis}Max`]) {
+      vectorTransform[settings.axis] = settings.allowedOffsets[`${settings.axis}Max`];
+      isInScope = false;
+    }
     
     setXYtoMatrix();
     return isInScope;

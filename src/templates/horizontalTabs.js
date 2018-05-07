@@ -14,10 +14,6 @@ const BTN_RIGHT = '$btnRight';
  * @public
  */
 export const createTabs = (options) => {
-  if (!validate(options)) {
-    return null;
-  }
-
   initElements(options);
   initSubscriptions(options);
   initHandlers(options);
@@ -41,18 +37,11 @@ function enable() {
   tabsEngine.enable();
 }
 
-function validate(options) {
-  return true;
-  //todo: add validation
-  //if (!options[CONTAINER] || !options[CONTAINER])
-}
-
 function initElements(options) {
   tabsEngine = options.$tabsContainer.tabsMain();
 
   tabsController = options.$tabsContainer.tabsMainAnimate({
-    tabs: tabsEngine,
-    childItems: options.$tabsItems
+    tabsCore: tabsEngine,
   });
 
   tabsBtnController = options.$tabsContainer.tabsMainSlideBtns({
@@ -71,7 +60,7 @@ function initElements(options) {
   });
 }
 
-function initSubscriptions(options) {
+function initSubscriptions() {
   tabsEngine.subscribe({
     event: 'update',
     callback: tabsBtnController.update
@@ -79,6 +68,6 @@ function initSubscriptions(options) {
 }
 
 function initHandlers(options) {
-  options.$btnLeft.on('click', tabsController.slideToLeft);
-  options.$btnRight.on('click', tabsController.slideToRight);
+  options.$btnLeft.on('click', tabsController.slideToMin);
+  options.$btnRight.on('click', tabsController.slideToMax);
 }
