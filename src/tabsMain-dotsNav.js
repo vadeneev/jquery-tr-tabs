@@ -12,16 +12,16 @@ $.fn.tabsMainDots = function (options) {
   let $self;
 
   let settings = {
-    triggerPoint: {x: '50%', y: '50%'},    
+    triggerPoint: {x: '50%', y: '50%'},
     tabsMoverCtrl: null,
     tabsCore: null,
     modernStyle: true,
   };
- 
+
   let triggerPoint = {x: '50%', y: '50%'};
   let axis = 'x';
   let $tabsItems = [];
-  let isListen = true;  
+  let isListen = true;
   let dotsArray = [];
   let curSelectedIndex = 0;
   let subscribers = [];
@@ -33,16 +33,16 @@ $.fn.tabsMainDots = function (options) {
   function init() {
     settings = {...settings, ...options};
     $that.on('click', handleDotCLick);
-    axis = settings.tabsCore.settings.axis;    
+    axis = settings.tabsCore.settings.axis;
     reManageDots();
     updateDots();
     init = $.noop;
   }
 
-  function updateTriggerPoint() {    
-    if (settings.triggerPoint[axis].toString().indexOf('%') === -1) { 
+  function updateTriggerPoint() {
+    if (settings.triggerPoint[axis].toString().indexOf('%') === -1) {
       triggerPoint[axis] = settings.triggerPoint[axis];
-      return; 
+      return;
     }
 
     let parentWidthPercent = settings.tabsCore.getParent().outerWidth() / 100;
@@ -52,24 +52,26 @@ $.fn.tabsMainDots = function (options) {
   }
 
   function reManageDots() {
-    $tabsItems = settings.tabsCore.getChilds();
+    $tabsItems = settings.tabsCore.getChildren();
     itemsPerSlide = settings.tabsCore.settings.itemsPerSlide;
     let nextSlideCount = settings.tabsCore.settings.slideCount;
-    
+
     updateTriggerPoint();
 
     if (nextSlideCount === 1) {
       slideCount = nextSlideCount;
-      $that.empty();      
-      return; 
+      $that.empty();
+      return;
     }
 
-    if (slideCount === nextSlideCount) { return; }
+    if (slideCount === nextSlideCount) {
+      return;
+    }
 
     $that.empty();
     slideCount = nextSlideCount;
 
-    for (let index = 0; index < slideCount; index++) {      
+    for (let index = 0; index < slideCount; index++) {
       getGeneratedDot($that, index);
     }
 
@@ -85,19 +87,23 @@ $.fn.tabsMainDots = function (options) {
   }
 
   function updateDots() {
-    if (!dotsArray || !dotsArray.length) {
+    if (!dotsArray || !dotsArray.length || curSelectedIndex > dotsArray.length - 1) {
       return;
     }
 
     dotsArray.removeClass(CORE_CLASS_SELECTED);
-    dotsArray[curSelectedIndex].classList.add(CORE_CLASS_SELECTED);    
+    dotsArray[curSelectedIndex].classList.add(CORE_CLASS_SELECTED);
 
-    if (dotsArray.length < 4) { return; }
+    if (dotsArray.length < 4) {
+      return;
+    }
     dotsArray.removeClass(CORE_CLASS_SMALL);
     dotsArray.removeClass(CORE_CLASS_SMALLEST);
-    dotsArray.removeClass('hidden');    
-    
-    if (!settings.modernStyle) { return; }
+    dotsArray.removeClass('hidden');
+
+    if (!settings.modernStyle) {
+      return;
+    }
 
     if (curSelectedIndex > 2) {
       handleMax();
@@ -152,15 +158,15 @@ $.fn.tabsMainDots = function (options) {
     let summWidth = 0;
 
     for (let index = 0; index < slideCount; index++) {
-      let startItem = itemsPerSlide * index;      
+      let startItem = itemsPerSlide * index;
       let elem = $tabsItems[startItem];
       let visiblePosition = settings.tabsCore.calcBoundInWrapper(elem);
 
-      if ( visiblePosition < triggerPoint[axis]) {
+      if (visiblePosition < triggerPoint[axis]) {
         curSelectedIndex = index;
       }
     }
-    
+
     updateDots();
     invokeCallback();
   }
@@ -190,7 +196,7 @@ $.fn.tabsMainDots = function (options) {
     subscribers.remove(callback);
   }
 
-  $self = {    
+  $self = {
     trackTabs,
     updateDots,
     disable,
@@ -198,7 +204,7 @@ $.fn.tabsMainDots = function (options) {
     subscribe,
     unSubscribe,
     reManageDots,
-  }
+  };
 
   if (!this.data('tabsMainDots')) {
     this.data('tabsMainDots', $self);

@@ -25,7 +25,7 @@ $.fn.tabsMainSlideBtns = function (config) {
       obj.init(options);
     }
 
-    return obj;     
+    return obj;
   }
 
   init(config);
@@ -79,14 +79,13 @@ $.fn.tabsMainSlideBtns = function (config) {
 
     enable: () => {
       settings.isEnabled = true;
-      update();
     },
     disable: () => {
       settings.isEnabled = false;
       hideAllBtns();
     },
-    
-  }
+
+  };
 
   if (!this.data('tabsMainSlideBtns')) {
     this.data('tabsMainSlideBtns', $self);

@@ -1,73 +1,66 @@
-let tabsEngine;
-let tabsController;
-let tabsBtnController;
-
-const CONTAINER = '$tabsContainer';
-const ITEMS = '$tabsItems';
-const BTN_LEFT = '$btnLeft';
-const BTN_RIGHT = '$btnRight';
-
 /**
  * @description create horizontal tabs
- * @param options  { $tabsContainer, $tabsItems, $btnLeft, $btnRight }
- * @return object with controls or null
+ * @param options  { $tabsContainer, $btnLeft, $btnRight, childrenSelector }
  * @public
+ * @constructor
  */
-export const createTabs = (options) => {
-  initElements(options);
-  initSubscriptions(options);
-  initHandlers(options);
+export class HorizontalTabs {
+  constructor(options) {
+    this.tabsEngine = null;
+    this.tabsController = null;
+    this.tabsBtnController = null;
 
-  return {
-    tabsEngine,
-    tabsController,
-    tabsBtnController,
-    enable,
-    disable
-  };
-};
+    this._initElements(options);
+    this._initSubscriptions(options);
+    this._initHandlers(options);
+  }
 
-function disable() {
-  tabsEngine.disable();
-  tabsBtnController.disable();
-}
+  _initElements(options) {
+    this.tabsEngine = options.$tabsContainer.tabsMain({
+      childSelector: options.childSelector || '> li',
+    });
 
-function enable() {
-  tabsBtnController.enable();
-  tabsEngine.enable();
-}
+    this.tabsController = options.$tabsContainer.tabsMainAnimate({
+      tabsCore: this.tabsEngine,
+    });
 
-function initElements(options) {
-  tabsEngine = options.$tabsContainer.tabsMain();
+    this.tabsBtnController = options.$tabsContainer.tabsMainSlideBtns({
+      toggleClass: 'hidden',
+      btns: [
+        {
+          $element: options.$btnLeft,
+          axis: 'x',
+          targetOffset: 'xMax'
+        },
+        {
+          $element: options.$btnRight,
+          axis: 'x',
+          targetOffset: 'xMin'
+        }
+      ]
+    });
+  }
 
-  tabsController = options.$tabsContainer.tabsMainAnimate({
-    tabsCore: tabsEngine,
-  });
+  _initSubscriptions(options) {
+    this.tabsEngine.subscribe({
+      event: 'update',
+      callback: this.tabsBtnController.update
+    });
+  }
 
-  tabsBtnController = options.$tabsContainer.tabsMainSlideBtns({
-    btns: [
-      {
-        $element: options.$btnLeft,
-        axis: 'x',
-        targetOffset: 'xMax'
-      },
-      {
-        $element: options.$btnRight,
-        axis: 'x',
-        targetOffset: 'xMin'
-      }
-    ]
-  });
-}
+  _initHandlers(options) {
+    options.$btnLeft.on('click', this.tabsController.slideToMin);
+    options.$btnRight.on('click', this.tabsController.slideToMax);
+  }
 
-function initSubscriptions() {
-  tabsEngine.subscribe({
-    event: 'update',
-    callback: tabsBtnController.update
-  });
-}
+  disable() {
+    this.tabsEngine.disable();
+    this.tabsBtnController.disable();
+  }
 
-function initHandlers(options) {
-  options.$btnLeft.on('click', tabsController.slideToMin);
-  options.$btnRight.on('click', tabsController.slideToMax);
+  enable() {
+    this.tabsBtnController.enable();
+    this.tabsEngine.enable();
+  }
+
 }

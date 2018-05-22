@@ -7,15 +7,15 @@ $.fn.tabsMainAnimate = function (config) {
 
   let $self;
   let $tabsItems = [];
-  let axis = 'x';  
+  let axis = 'x';
   let prevTransform = {x: 0, y: 0};
-  let deferred;  
+  let deferred;
   let itemsPerSlide = 1;
-  let boundaryBox;  
+  let boundaryBox;
   let slideCount;
 
   if (this.data('tabsMainAnimate')) {
-    return this.data('tabsMainAnimate');    
+    return this.data('tabsMainAnimate');
   }
 
   init();
@@ -27,7 +27,7 @@ $.fn.tabsMainAnimate = function (config) {
     boundaryBox = settings.tabsCore.settings.allowedOffsets;
     itemsPerSlide = coreSettings.itemsPerSlide;
     slideCount = coreSettings.slideCount;
-    $tabsItems = settings.tabsCore.getChilds();
+    $tabsItems = settings.tabsCore.getChildren();
   }
 
   function getOuterMeasure(element) {
@@ -58,7 +58,7 @@ $.fn.tabsMainAnimate = function (config) {
 
   function init() {
     settings = {...settings, ...config};
-    axis = settings.tabsCore.settings.axis;    
+    axis = settings.tabsCore.settings.axis;
     update();
   }
 
@@ -71,19 +71,21 @@ $.fn.tabsMainAnimate = function (config) {
     update();
 
     for (let index = 0; index < slideCount; index++) {
-      const startItem = itemsPerSlide * index;      
-      const elem = $tabsItems[startItem];            
+      const startItem = itemsPerSlide * index;
+      const elem = $tabsItems[startItem];
       const visiblePosition = settings.tabsCore.calcBoundInWrapper(elem);
 
-      if ( visiblePosition > 0 - settings.accuracy) { break; }
-      foundIndex = startItem; 
+      if (visiblePosition > 0 - settings.accuracy) {
+        break;
+      }
+      foundIndex = startItem;
     }
 
-    let point = { [axis]:  settings.tabsCore.calcTransformToElement($tabsItems[foundIndex])[axis] };
+    let point = {[axis]: settings.tabsCore.calcTransformToElement($tabsItems[foundIndex])[axis]};
 
     startSlideToPoint(point);
   }
-  
+
   /**
    * @description slides to right to next elements end
    * @public
@@ -92,7 +94,7 @@ $.fn.tabsMainAnimate = function (config) {
     update();
     const measure = getMeasure(settings.tabsCore.getParent());
     let rightBorder = 0;
-    
+
 
     for (let index = 0; index < slideCount; index++) {
       const startItem = itemsPerSlide * index;
@@ -100,42 +102,45 @@ $.fn.tabsMainAnimate = function (config) {
       const elem = $tabsItems[endItem];
       rightBorder = settings.tabsCore.calcBoundInWrapper(elem) + getOuterMeasure(elem);
 
-      if ( rightBorder > measure + settings.accuracy) {
+      if (rightBorder > measure + settings.accuracy) {
         break;
       }
     }
-    const point = { [axis]: settings.tabsCore.transform[axis] - rightBorder + measure};
+    const point = {[axis]: settings.tabsCore.transform[axis] - rightBorder + measure};
     startSlideToPoint(point);
   }
 
   function moveToSlide(slideNumber) {
     update();
-    
-    if (itemsPerSlide === 1) {      
+
+    if (itemsPerSlide === 1) {
       return moveToElement($tabsItems[slideNumber]);
     }
-    
-    let firstIndex = itemsPerSlide * slideNumber;        
-    return moveToElement($tabsItems[firstIndex]);    
+
+    let firstIndex = itemsPerSlide * slideNumber;
+    return moveToElement($tabsItems[firstIndex]);
   }
 
-  function moveToElement(element) {
-    let newPoint = { [axis]: settings.tabsCore.calcTransformToElement(element)[axis] };
-    
+  function moveToElement(element, isCentered = false) {
+    let newPoint = {[axis]: settings.tabsCore.calcTransformToElement(element)[axis]};
+    if (isCentered) {
+      newPoint[axis] = newPoint[axis] + getMeasure(settings.tabsCore.getParent()) / 2 - getOuterMeasure(element) / 2;
+    }
+
     return startSlideToPoint(newPoint);
   }
 
   function slideToElement($element) {
-    let minBound = settings.tabsCore.calcBoundInWrapper($element);
+    const rightBorder = settings.tabsCore.calcBoundInWrapper($element) + $element.outerWidth();
 
-    if (minBound < 0) {
+    if (rightBorder < 0) {
       return moveToElement($element);
     }
-    
+
     const width = settings.tabsCore.getParent().width();
-    if (minBound >= width) {
-      const rightBorder = settings.tabsCore.calcBoundInWrapper($element) + $element.outerWidth();
-      const point = { [axis]: settings.tabsCore.transform[axis] - rightBorder + width};
+
+    if (rightBorder > width) {
+      const point = {[axis]: settings.tabsCore.transform[axis] - rightBorder + width};
       return startSlideToPoint(point);
     }
   }
@@ -156,13 +161,13 @@ $.fn.tabsMainAnimate = function (config) {
   }
 
   function slideToPoint(point, promisDelegate) {
-    let curTransform = settings.tabsCore.transform;    
+    let curTransform = settings.tabsCore.transform;
     let $that = settings.tabsCore.getElement();
 
-    $that.css({ 'transition': 'transform 0.2s ease-in-out' });
+    $that.css({'transition': 'transform 0.2s ease-in-out'});
     $that.on('transitionend', () => {
       promisDelegate.resolve();
-      $that.css({ 'transition': '' });
+      $that.css({'transition': ''});
       $that.off('transitionend');
     });
     settings.tabsCore.transform = {...curTransform, ...point};
@@ -183,7 +188,7 @@ $.fn.tabsMainAnimate = function (config) {
     slideToMin,
     slideToMax,
     slideToPoint,
-    slideToElement,    
+    slideToElement,
     continueSliding,
     moveToSlide,
     moveToElement,

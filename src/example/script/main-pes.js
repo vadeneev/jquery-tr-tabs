@@ -1,4 +1,8 @@
 //$.fn.reverse = [].reverse;
+/**
+ * @description uses requestAnimationFrame for preventing DOM overcall by expensive events
+ */
+
 $(
   function () {
     verticalTabs();

@@ -1,5 +1,7 @@
 window.curResolution = document.body.clientWidth >= 960 ? 'desktopResolution' : 'mobileResolution';
-
+/**
+ * @description uses requestAnimationFrame for preventing DOM overcall by expensive events
+ */
 $(() => {
   $window = $(window);
   yDots();
@@ -9,7 +11,7 @@ $(() => {
     if (document.body.clientWidth >= 960 && window.curResolution !== 'desktopResolution') {
       window.curResolution = 'desktopResolution';
       $window.trigger('desktopResolution');
-    } 
+    }
     else if (document.body.clientWidth < 960 && window.curResolution !== 'mobileResolution') {
       window.curResolution = 'mobileResolution';
       $window.trigger('mobileResolution');
@@ -19,16 +21,16 @@ $(() => {
 
 
 function yDots() {
-  let $tabs = $('.y-dots .js-tabs');  
+  let $tabs = $('.y-dots .js-tabs');
   let tabsObject = $tabs.tabsMain({
     axis: 'y',
     childSelector: '> li'
   });
   let btns;
   let dots;
-  
+
   let moveTabs = $tabs.tabsMainAnimate({
-    tabsCore: tabsObject,    
+    tabsCore: tabsObject,
   });
 
   tabsObject.subscribe({
@@ -46,15 +48,15 @@ function yDots() {
   $(window).on('desktopResolution', desktop);
   $(window).on('mobileResolution', mobile);
 
-  function desktop() {    
-    tabsObject.settings = { axis: 'y'};
-
+  function desktop() {
+    tabsObject.settings = {axis: 'y'};
+    tabsObject.clearTransform();
     initBtns();
   }
 
   function mobile() {
-    tabsObject.settings = { axis: 'x'};
-
+    tabsObject.settings = {axis: 'x'};
+    tabsObject.clearTransform();
     initDots();
   }
 
@@ -87,7 +89,7 @@ function yDots() {
     initBtns = () => btns.enable;
   }
 
-  function initDots() {    
+  function initDots() {
     dots = $('.y-dots .js-adapt-dots').tabsMainDots({
       triggerPoint: {x: '50%', y: 0},
       tabsMoverCtrl: moveTabs,
@@ -109,16 +111,16 @@ function yDots() {
 }
 
 function xDots() {
-  let $tabs = $('.x-responsive .js-tabs');  
+  let $tabs = $('.x-responsive .js-tabs');
   let tabsObject = $tabs.tabsMain({
     axis: 'x',
     childSelector: '> li'
   });
   let btns;
   let dots;
-  
+
   let moveTabs = $tabs.tabsMainAnimate({
-    tabsCore: tabsObject,    
+    tabsCore: tabsObject,
   });
 
   tabsObject.subscribe({
@@ -136,19 +138,24 @@ function xDots() {
   $(window).on('desktopResolution', desktop);
   $(window).on('mobileResolution', mobile);
 
-  function desktop() {    
-    tabsObject.settings = { 
-      itemsInSlideFitsWrapper: false, 
-      itemsPerSlide: 1
+  function desktop() {
+    tabsObject.settings = {
+      itemsInSlideFitsWrapper: false,
+      itemsPerSlide: 1,
+      isTruncatedContainer: false,
     };
-
+    tabsObject.clearTransform();
     initBtns();
   }
 
   function mobile() {
-    tabsObject.settings = { itemsInSlideFitsWrapper: true};
+    tabsObject.settings = {
+      itemsInSlideFitsWrapper: true,
+      isTruncatedContainer: true,
+    };
 
     initDots();
+    tabsObject.clearTransform();
   }
 
   function initBtns() {
@@ -180,7 +187,7 @@ function xDots() {
     initBtns = () => btns.enable;
   }
 
-  function initDots() {    
+  function initDots() {
     dots = $('.x-responsive .js-adapt-dots').tabsMainDots({
       triggerPoint: {x: '50%', y: 0},
       tabsMoverCtrl: moveTabs,
