@@ -143,7 +143,7 @@ $.fn.tabsMain = function (options) {
   function truncateWidth(itemsCount = 1) {
     if (!settings.isTruncatedContainer) { return; }
     let measure = settings.axis === 'x' ? 'width' : 'height';
-    let summ = Math.abs(calcTransformToElement(children[itemsCount])[settings.axis]);
+    let summ = Math.abs(calcTransformToElement(children[itemsCount - 1])[settings.axis]);
 
     $parentElement.css({
       [measure]: summ,
@@ -151,17 +151,25 @@ $.fn.tabsMain = function (options) {
     });
   }
 
-  function considerItemsPerSlide() {
-    //TODO: split and ref
+  function wipeSliderFit() {
     let measure = settings.axis === 'x' ? 'width' : 'height';
-    settings.slideCount = Math.ceil(children.length / settings.itemsPerSlide);
 
-    if (!settings.itemsInSlideFitsWrapper) {
-      children.filter(`.${COMPENSATION_ELEMENT}`).remove();
+    children.filter(`.${COMPENSATION_ELEMENT}`).remove();
+
+    if (!settings.isTruncatedContainer) {
       $parentElement.css({
         [measure]: '',
         [`max-${measure}`]: ''
       });
+    }
+  }
+
+  function considerItemsPerSlide() {
+    //TODO: split and ref
+    settings.slideCount = Math.ceil(children.length / settings.itemsPerSlide);
+
+    if (!settings.itemsInSlideFitsWrapper) {
+      wipeSliderFit();
       return;
     }
     if (getMeasure($parentElement.parent()) === previousContainerSize) {
@@ -173,7 +181,11 @@ $.fn.tabsMain = function (options) {
     if (nextIPSvalue === settings.itemsPerSlide) {
       return;
     }
+    fillTabsWithExtraItems(nextIPSvalue);
+    invokeCallback(subscribers.update, 'dotsUpdate');
+  }
 
+  function fillTabsWithExtraItems(nextIPSvalue) {
     children.filter(`.${COMPENSATION_ELEMENT}`).remove();
     children = children.not(`.${COMPENSATION_ELEMENT}`);
 
@@ -201,7 +213,6 @@ $.fn.tabsMain = function (options) {
         children = children.add($element);
       }
     }
-    invokeCallback(subscribers.update, 'dotsUpdate');
   }
 
   //mouse event handlers
