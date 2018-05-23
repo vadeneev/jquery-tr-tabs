@@ -143,7 +143,7 @@ $.fn.tabsMain = function (options) {
   function truncateWidth(itemsCount = 1) {
     if (!settings.isTruncatedContainer) { return; }
     let measure = settings.axis === 'x' ? 'width' : 'height';
-    let summ = Math.abs(calcTransformToElement(children[itemsCount - 1])[settings.axis]);
+    let summ = Math.abs(calcTransformToElement(children[itemsCount - 1])[settings.axis]) + getOuterMeasure(children[itemsCount - 1]);
 
     $parentElement.css({
       [measure]: summ,
