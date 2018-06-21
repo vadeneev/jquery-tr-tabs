@@ -29,6 +29,7 @@ $.fn.tabsMain = function (options) {
   let children;
   let previousContainerSize;
   let $parentElement;
+  let isEnabled = true;
 
   let subscribers = {
     start: [],
@@ -48,10 +49,12 @@ $.fn.tabsMain = function (options) {
     slideCount: 1,
     useOverflowOffset: true, //todo : create variety
     isTruncatedContainer: false,
+    slideOffset: 0,
   };
 
   if ($that.data('tabsMain')) {
     let obj = $that.data('tabsMain');
+
     if (options && options instanceof Object) {
       obj.updateSettings(options);
     }
@@ -117,11 +120,19 @@ $.fn.tabsMain = function (options) {
     }
     settings.allowedOffsets.xMin = $parentElement.width() - $that[0].scrollWidth;
     settings.allowedOffsets.yMin = $parentElement.height() - $that[0].scrollHeight;
+
+    if (settings.allowedOffsets.xMin > 0) {
+      settings.allowedOffsets.xMin = 0;
+    }
+    if (settings.allowedOffsets.yMin > 0) {
+      settings.allowedOffsets.yMin = 0;
+    }
   }
 
   function fitItemsToExternal() {
     let currentMeasure = getMeasure($parentElement.parent());
     let clearChildren = children.not(`.${COMPENSATION_ELEMENT}`);
+
     previousContainerSize = currentMeasure;
 
     let summ = getOuterMeasure(clearChildren[0]);
@@ -141,7 +152,9 @@ $.fn.tabsMain = function (options) {
   }
 
   function truncateWidth(itemsCount = 1) {
-    if (!settings.isTruncatedContainer) { return; }
+    if (!settings.isTruncatedContainer) {
+      return;
+    }
     let measure = settings.axis === 'x' ? 'width' : 'height';
     let summ = Math.abs(calcTransformToElement(children[itemsCount - 1])[settings.axis]) + getOuterMeasure(children[itemsCount - 1]);
 
@@ -164,21 +177,24 @@ $.fn.tabsMain = function (options) {
     }
   }
 
-  function considerItemsPerSlide() {
+  function considerItemsPerSlide({force} = {force: false}) {
     //TODO: split and ref
+    if (!children.length) {
+      return;
+    }
     settings.slideCount = Math.ceil(children.length / settings.itemsPerSlide);
 
     if (!settings.itemsInSlideFitsWrapper) {
       wipeSliderFit();
       return;
     }
-    if (getMeasure($parentElement.parent()) === previousContainerSize) {
+    if (getMeasure($parentElement.parent()) === previousContainerSize && !force) {
       return;
     }
     let nextIPSvalue = fitItemsToExternal();
 
     truncateWidth(nextIPSvalue);
-    if (nextIPSvalue === settings.itemsPerSlide) {
+    if (nextIPSvalue === settings.itemsPerSlide && !force) {
       return;
     }
     fillTabsWithExtraItems(nextIPSvalue);
@@ -251,7 +267,7 @@ $.fn.tabsMain = function (options) {
       return true;
     }
     proceedMoveHandler({x: touches[0].pageX, y: touches[0].pageY});
-    return false;
+    return true;
   }
 
   // end touch
@@ -298,6 +314,7 @@ $.fn.tabsMain = function (options) {
     $that.off('touchend', handleStop);
     $that.off('mouseup mouseleave', handleStop);
     //subscribers.stop && subscribers.stop({ ...vectorTransform, settings });
+    updateTabsWidth();
     invokeCallback(subscribers.stop);
     if (pathAbs > settings.tapPrecision) {
       event.type.match('mouseup') && $that.one('click', false);
@@ -313,10 +330,11 @@ $.fn.tabsMain = function (options) {
    * @param {object} vectorCur
    */
   function proceedMoveHandler(vectorCur) {
-    moveAmount = zeroVector;
+    let newPoint;
 
+    moveAmount = zeroVector;
     moveAmount[settings.axis] = vectorCur[settings.axis] - vectorPrev[settings.axis];
-    let newPoint = {[settings.axis]: vectorTransform[settings.axis] + moveAmount[settings.axis]};
+    newPoint = {[settings.axis]: vectorTransform[settings.axis] + moveAmount[settings.axis]};
     vectorTransform = {...vectorTransform, ...newPoint};
     pathAbs += Math.abs(moveAmount[settings.axis]);
 
@@ -332,6 +350,7 @@ $.fn.tabsMain = function (options) {
    */
   function setTransformBounds() {
     let isInScope = true;
+
     if (vectorTransform[settings.axis] < settings.allowedOffsets[`${settings.axis}Min`]) {
       vectorTransform[settings.axis] = settings.allowedOffsets[`${settings.axis}Min`];
       isInScope = false;
@@ -340,7 +359,6 @@ $.fn.tabsMain = function (options) {
       vectorTransform[settings.axis] = settings.allowedOffsets[`${settings.axis}Max`];
       isInScope = false;
     }
-
     setXYtoMatrix();
     return isInScope;
   }
@@ -354,20 +372,64 @@ $.fn.tabsMain = function (options) {
     invokeCallback(subscribers.update);
   }
 
+  /**
+   * it is required for safari - it calculates container width in unexpected way.
+   */
+  function updateTabsWidth() {
+    const measure = settings.axis === 'x' ? 'width' : 'height';
+    const lastElement = children[children.length - 1];
+
+    if (!lastElement) {
+      return;
+    }
+
+    const fullMeasure = calcElementOffset(lastElement) + getOuterMeasure(lastElement);
+    const currentMeasure = parseFloat($that.css(measure));
+
+    if (currentMeasure >= fullMeasure) {
+      return;
+    }
+    $that.css({
+      [measure]: fullMeasure,
+      [`min-${measure}`]: fullMeasure,
+    });
+  }
+
   // controls
   /**
    * @public
    * @method pesTabs
    */
   function enable() {
-    handleResize();
+    if (isEnabled) {
+      return;
+    }
+    isEnabled = true;
     subscribeHandlers();
+    considerItemsPerSlide({force: true});
+    handleResize();
   }
 
   /**
    * @public
    */
   function disable() {
+    if (!isEnabled) {
+      return;
+    }
+    isEnabled = false;
+    const measure = settings.axis === 'x' ? 'width' : 'height';
+
+    $parentElement.css({
+      [measure]: '',
+      [`max-${measure}`]: '',
+    });
+
+    $that.css({
+      [measure]: '',
+      [`min-${measure}`]: '',
+    });
+
     setTransform(zeroVector);
     invokeCallback(subscribers.update);
     unSubscribeHandlers();
@@ -384,15 +446,19 @@ $.fn.tabsMain = function (options) {
   }
 
   function subscribe({event = 'update', callback}) {
-    if (event in subscribers) {
-      subscribers[event].push(callback);
-      invokeCallback(subscribers[event]);
+    if (!(event in subscribers)) {
+      subscribers[event] = [];
     }
+
+    subscribers[event].push(callback);
+    invokeCallback(subscribers[event]);
+
   }
 
   function unSubscribe({event = 'update', callback}) {
     if (event in subscribers) {
       const index = subscribers[event].indexOf(callback);
+
       subscribers[event].splice(index, 1);
     }
   }
@@ -437,30 +503,31 @@ $.fn.tabsMain = function (options) {
 
   //move to helpers end
 
+  function calcElementOffset(element) {
+    let elem = convertDOMelement(element);
+
+    if (settings.axis === 'x') {
+      return elem.getBoundingClientRect().left - $that[0].getBoundingClientRect().left;
+    }
+    return elem.getBoundingClientRect().top - $that[0].getBoundingClientRect().top;
+  }
+
   function calcBoundInWrapper(element) {
     let elem = convertDOMelement(element);
 
     if (settings.axis === 'x') {
-      return vectorTransform.x + (elem.getBoundingClientRect().left - $that[0].getBoundingClientRect().left);
+      return vectorTransform.x + (calcElementOffset(elem));
     }
-    return vectorTransform.y + (elem.getBoundingClientRect().top - $that[0].getBoundingClientRect().top);
+    return vectorTransform.y + (calcElementOffset(elem));
   }
 
   function calcTransformToElement(element) {
-    let length;
-    let elem = convertDOMelement(element);
-
-    if (settings.axis === 'x') {
-      length = elem.getBoundingClientRect().left - children[0].getBoundingClientRect().left;
-    }
-    else {
-      length = elem.getBoundingClientRect().top - children[0].getBoundingClientRect().top;
-    }
+    const length = calcElementOffset(element);
 
     return {[settings.axis]: settings.allowedOffsets[`${settings.axis}Max`] - length};
   }
 
-  function getXYfromMatrix($element) {
+  /*  function getXYfromMatrix($element) {
     let result = [];
 
     result = $element.css('transform').match(/-?\d+/g).map((value) => parseInt(value));
@@ -468,14 +535,25 @@ $.fn.tabsMain = function (options) {
       return {x: result[10], y: result[11]};
     }
     return {x: result[5], y: result[6]};
-  }
+  }*/
 
   function updateSettings(options) {
-    if (!options || !options instanceof Object) {
+    if (!options || !(options instanceof Object)) {
       return;
     }
     settings = {...settings, ...options};
 
+    forceUpdate();
+  }
+
+  function publish(event) {
+    if (event in subscribers) {
+      invokeCallback(subscribers[event]);
+    }
+  }
+
+  function forceUpdate() {
+    updateTabsWidth();
     calculateOffset();
     considerItemsPerSlide();
     setTransformBounds();
@@ -487,6 +565,7 @@ $.fn.tabsMain = function (options) {
 
     subscribe,
     unSubscribe,
+    publish,
 
     calcBoundInWrapper,
     calcTransformToElement,
@@ -502,13 +581,16 @@ $.fn.tabsMain = function (options) {
       return vectorTransform;
     },
     set transform(value) {
+      updateTabsWidth();
       setTransform(value);
     },
 
     getChildren: () => children,
     getElement: () => $that,
     getParent: () => $parentElement,
-    clearTransform: () => setTransform({'x': 0, 'y': 0})
+    clearTransform: () => setTransform({'x': 0, 'y': 0}),
+
+    forceUpdate,
   };
 
   if (!$that.data('tabsMain')) {

@@ -1,6 +1,6 @@
 /**
  * @description create horizontal tabs
- * @param options  { $tabsContainer, $btnLeft, $btnRight, childrenSelector }
+ * @param options  { $tabsContainer, $btnLeft, $btnRight, childSelector, isBtnOffset }
  * @public
  * @constructor
  */
@@ -16,8 +16,11 @@ export class HorizontalTabs {
   }
 
   _initElements(options) {
+    const slideOffset = options.isBtnOffset ? options.$btnLeft.outerWidth() : 0;
+
     this.tabsEngine = options.$tabsContainer.tabsMain({
       childSelector: options.childSelector || '> li',
+      slideOffset
     });
 
     this.tabsController = options.$tabsContainer.tabsMainAnimate({

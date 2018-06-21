@@ -2,7 +2,7 @@ $.fn.tabsMainAnimate = function (config) {
   'use strict';
   let settings = {
     tabsCore: null,
-    accuracy: 10
+    accuracy: 10,
   };
 
   let $self;
@@ -13,6 +13,7 @@ $.fn.tabsMainAnimate = function (config) {
   let itemsPerSlide = 1;
   let boundaryBox;
   let slideCount;
+  let slideOffset = 0;
 
   if (this.data('tabsMainAnimate')) {
     return this.data('tabsMainAnimate');
@@ -28,6 +29,7 @@ $.fn.tabsMainAnimate = function (config) {
     itemsPerSlide = coreSettings.itemsPerSlide;
     slideCount = coreSettings.slideCount;
     $tabsItems = settings.tabsCore.getChildren();
+    slideOffset = coreSettings.slideOffset;
   }
 
   function getOuterMeasure(element) {
@@ -69,6 +71,7 @@ $.fn.tabsMainAnimate = function (config) {
   function slideToMin() {
     let foundIndex = 0;
     update();
+    if (!$tabsItems.length) { return; }
 
     for (let index = 0; index < slideCount; index++) {
       const startItem = itemsPerSlide * index;
@@ -83,6 +86,8 @@ $.fn.tabsMainAnimate = function (config) {
 
     let point = {[axis]: settings.tabsCore.calcTransformToElement($tabsItems[foundIndex])[axis]};
 
+    point[axis] += slideOffset;
+
     startSlideToPoint(point);
   }
 
@@ -92,6 +97,8 @@ $.fn.tabsMainAnimate = function (config) {
    */
   function slideToMax() {
     update();
+    if (!$tabsItems.length) { return; }
+
     const measure = getMeasure(settings.tabsCore.getParent());
     let rightBorder = 0;
 
@@ -106,12 +113,15 @@ $.fn.tabsMainAnimate = function (config) {
         break;
       }
     }
-    const point = {[axis]: settings.tabsCore.transform[axis] - rightBorder + measure};
+    let point = {[axis]: settings.tabsCore.transform[axis] - rightBorder + measure};
+
+    point[axis] -= slideOffset;
     startSlideToPoint(point);
   }
 
   function moveToSlide(slideNumber) {
     update();
+    if (!$tabsItems.length) { return; }
 
     if (itemsPerSlide === 1) {
       return moveToElement($tabsItems[slideNumber]);
@@ -122,6 +132,8 @@ $.fn.tabsMainAnimate = function (config) {
   }
 
   function moveToElement(element, isCentered = false) {
+    if (!element || !element.length) { return; }
+
     let newPoint = {[axis]: settings.tabsCore.calcTransformToElement(element)[axis]};
     if (isCentered) {
       newPoint[axis] = newPoint[axis] + getMeasure(settings.tabsCore.getParent()) / 2 - getOuterMeasure(element) / 2;
@@ -131,6 +143,8 @@ $.fn.tabsMainAnimate = function (config) {
   }
 
   function slideToElement($element) {
+    if (!$element || !$element.length) { return; }
+
     const rightBorder = settings.tabsCore.calcBoundInWrapper($element) + $element.outerWidth();
 
     if (rightBorder < 0) {
@@ -160,15 +174,16 @@ $.fn.tabsMainAnimate = function (config) {
     return deferred;
   }
 
-  function slideToPoint(point, promisDelegate) {
+  function slideToPoint(point, promiseDelegate) {
     let curTransform = settings.tabsCore.transform;
     let $that = settings.tabsCore.getElement();
 
     $that.css({'transition': 'transform 0.2s ease-in-out'});
     $that.on('transitionend', () => {
-      promisDelegate.resolve();
+      promiseDelegate.resolve();
       $that.css({'transition': ''});
       $that.off('transitionend');
+      settings.tabsCore.publish('transitionend');
     });
     settings.tabsCore.transform = {...curTransform, ...point};
   }

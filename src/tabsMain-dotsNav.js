@@ -4,11 +4,6 @@
 $.fn.tabsMainDots = function (options) {
   'use strict';
   const $that = this;
-
-  const CORE_CLASS = 'dot-nav';
-  const CORE_CLASS_SELECTED = 'dot-nav--selected';
-  const CORE_CLASS_SMALL = 'dot-nav--small';
-  const CORE_CLASS_SMALLEST = 'dot-nav--smallest';
   let $self;
 
   let settings = {
@@ -16,6 +11,10 @@ $.fn.tabsMainDots = function (options) {
     tabsMoverCtrl: null,
     tabsCore: null,
     modernStyle: true,
+    CORE_CLASS: 'dot-nav-pes',
+    CORE_CLASS_SELECTED: 'dot-nav-pes--selected',
+    CORE_CLASS_SMALL: 'dot-nav-pes--small',
+    CORE_CLASS_SMALLEST: 'dot-nav-pes--smallest',
   };
 
   let triggerPoint = {x: '50%', y: '50%'};
@@ -75,12 +74,13 @@ $.fn.tabsMainDots = function (options) {
       getGeneratedDot($that, index);
     }
 
-    dotsArray = $that.find(`.${CORE_CLASS}`);
+    dotsArray = $that.find(`.${settings.CORE_CLASS}`);
   }
 
   function getGeneratedDot($appendTo, index) {
-    let $dot = $(`<div class="${CORE_CLASS}" data-index=${index}/>`);
-    !index && $dot.addClass(CORE_CLASS_SELECTED);
+    let $dot = $(`<div class="${settings.CORE_CLASS}" data-index=${index}/>`);
+
+    !index && $dot.addClass(settings.CORE_CLASS_SELECTED);
 
     $dot.appendTo($appendTo);
     return $dot;
@@ -91,14 +91,14 @@ $.fn.tabsMainDots = function (options) {
       return;
     }
 
-    dotsArray.removeClass(CORE_CLASS_SELECTED);
-    dotsArray[curSelectedIndex].classList.add(CORE_CLASS_SELECTED);
+    dotsArray.removeClass(settings.CORE_CLASS_SELECTED);
+    dotsArray[curSelectedIndex].classList.add(settings.CORE_CLASS_SELECTED);
 
     if (dotsArray.length < 4) {
       return;
     }
-    dotsArray.removeClass(CORE_CLASS_SMALL);
-    dotsArray.removeClass(CORE_CLASS_SMALLEST);
+    dotsArray.removeClass(settings.CORE_CLASS_SMALL);
+    dotsArray.removeClass(settings.CORE_CLASS_SMALLEST);
     dotsArray.removeClass('hidden');
 
     if (!settings.modernStyle) {
@@ -110,24 +110,25 @@ $.fn.tabsMainDots = function (options) {
       handleMin();
     }
     else {
-      dotsArray[3].classList.add(CORE_CLASS_SMALL);
+      dotsArray[3].classList.add(settings.CORE_CLASS_SMALL);
       hideRange(4, dotsArray.length);
     }
   }
 
   function handleMin() {
-    dotsArray[curSelectedIndex + 1] && dotsArray[curSelectedIndex + 1].classList.add(CORE_CLASS_SMALL);
-    dotsArray[curSelectedIndex + 2] && dotsArray[curSelectedIndex + 2].classList.add(CORE_CLASS_SMALLEST);
+    dotsArray[curSelectedIndex + 1] && dotsArray[curSelectedIndex + 1].classList.add(settings.CORE_CLASS_SMALL);
+    dotsArray[curSelectedIndex + 2] && dotsArray[curSelectedIndex + 2].classList.add(settings.CORE_CLASS_SMALLEST);
     hideRange(curSelectedIndex + 3, dotsArray.length);
   }
 
   function handleMax() {
     let hideEnd = curSelectedIndex - 5;
+
     if (dotsArray.length - curSelectedIndex < 3) {
       hideEnd = curSelectedIndex - 4;
     }
-    dotsArray[curSelectedIndex - 3] && dotsArray[curSelectedIndex - 3].classList.add(CORE_CLASS_SMALL);
-    dotsArray[curSelectedIndex - 4] && dotsArray[curSelectedIndex - 4].classList.add(CORE_CLASS_SMALLEST);
+    dotsArray[curSelectedIndex - 3] && dotsArray[curSelectedIndex - 3].classList.add(settings.CORE_CLASS_SMALL);
+    dotsArray[curSelectedIndex - 4] && dotsArray[curSelectedIndex - 4].classList.add(settings.CORE_CLASS_SMALLEST);
     hideRange(0, hideEnd);
   }
 
@@ -138,7 +139,6 @@ $.fn.tabsMainDots = function (options) {
   }
 
   function handleDotCLick($event) {
-    let $element;
     let $target = $($event.target);
 
     isListen = false;
@@ -151,11 +151,12 @@ $.fn.tabsMainDots = function (options) {
     updateDots();
   }
 
-  function trackTabs($event) {
+  function trackTabs() {
+    const prevSelected = curSelectedIndex;
+
     if (!isListen) {
       return;
     }
-    let summWidth = 0;
 
     for (let index = 0; index < slideCount; index++) {
       let startItem = itemsPerSlide * index;
@@ -168,7 +169,7 @@ $.fn.tabsMainDots = function (options) {
     }
 
     updateDots();
-    invokeCallback();
+    prevSelected !== curSelectedIndex && invokeCallback();
   }
 
   function enable() {
